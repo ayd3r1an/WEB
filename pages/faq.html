@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ | BloodStrike H@ck Library</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../styles/neumorphic.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../supabase-config.js" defer></script>
+    <script src="../app.js" defer></script>
+    <style>
+        .faq-categories {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+        }
+        
+        .faq-category {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            background: var(--neu-bg);
+            box-shadow: 4px 4px 8px var(--neu-dark),
+                        -4px -4px 8px var(--neu-light);
+            color: var(--neu-text);
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+        
+        .faq-category:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 12px var(--neu-dark),
+                        -6px -6px 12px var(--neu-light);
+        }
+        
+        .faq-category.active {
+            background: var(--neu-primary);
+            color: white;
+            box-shadow: 4px 4px 8px rgba(86, 133, 255, 0.3),
+                        -4px -4px 8px rgba(255, 255, 255, 0.1);
+        }
+        
+        .faq-item {
+            margin-bottom: 1rem;
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--neu-bg);
+            box-shadow: 8px 8px 16px var(--neu-dark),
+                        -8px -8px 16px var(--neu-light);
+        }
+        
+        .faq-question {
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--neu-text);
+            transition: all 0.3s ease;
+        }
+        
+        .faq-question:hover {
+            background: var(--neu-light);
+        }
+        
+        .faq-answer {
+            padding: 0 1.5rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .faq-item.active .faq-answer {
+            padding: 0 1.5rem 1.5rem;
+            max-height: 1000px;
+        }
+        
+        .faq-toggle {
+            transition: transform 0.3s ease;
+        }
+        
+        .faq-item.active .faq-toggle {
+            transform: rotate(180deg);
+        }
+        
+        .search-container {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        
+        .search-input {
+            padding-left: 3rem;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--neu-text-light);
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .contact-cta {
+            margin-top: 3rem;
+            padding: 2rem;
+            border-radius: 20px;
+            background: var(--neu-bg);
+            box-shadow: 8px 8px 16px var(--neu-dark),
+                        -8px -8px 16px var(--neu-light);
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navbar -->
+    <nav class="neu-navbar">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="neu-logo">
+                        <i class="fas fa-bolt text-blue-500"></i>
+                    </div>
+                    <a href="../index.html" class="text-2xl font-bold neu-text-primary">BloodStrike<span class="neu-text-accent">Mods</span></a>
+                </div>
+                
+                <div class="hidden md:flex space-x-6">
+                    <a href="../index.html" class="neu-nav-link"><i class="fas fa-home mr-2"></i>Home</a>
+                    <a href="library.html" class="neu-nav-link"><i class="fas fa-box-archive mr-2"></i>Library</a>
+                    <a href="upload.html" class="neu-nav-link"><i class="fas fa-upload mr-2"></i>Upload</a>
+                    <a href="contact.html" class="neu-nav-link"><i class="fas fa-envelope mr-2"></i>Contact</a>
+                    <a href="faq.html" class="neu-nav-link active"><i class="fas fa-question-circle mr-2"></i>FAQ</a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button id="themeToggle" class="neu-btn-icon">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div id="authButtons" class="hidden">
+                        <a href="login.html" class="neu-btn-sm mr-2">Login</a>
+                        <a href="login.html?action=signup" class="neu-btn-sm neu-btn-primary">Sign Up</a>
+                    </div>
+                    <div id="userMenu" class="hidden">
+                        <div class="relative">
+                            <button id="userDropdownBtn" class="neu-btn-icon">
+                                <i class="fas fa-user"></i>
+                            </button>
+                            <div id="userDropdown" class="neu-dropdown hidden absolute right-0 mt-2">
+                                <a href="#" class="neu-dropdown-item"><i class="fas fa-heart mr-2"></i>Favorites</a>
+                                <a href="#" class="neu-dropdown-item"><i class="fas fa-history mr-2"></i>History</a>
+                                <a href="upload.html" class="neu-dropdown-item"><i class="fas fa-upload mr-2"></i>Upload</a>
+                                <hr class="my-2">
+                                <a href="#" id="logoutBtn" class="neu-dropdown-item text-red-500"><i class="fas fa-sign-out mr-2"></i>Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="mobileMenuBtn" class="neu-btn-icon md:hidden">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="neu-card mt-3 hidden md:hidden">
+                <a href="../index.html" class="neu-nav-link-mobile"><i class="fas fa-home mr-2"></i>Home</a>
+                <a href="library.html" class="neu-nav-link-mobile"><i class="fas fa-box-archive mr-2"></i>Library</a>
+                <a href="upload.html" class="neu-nav-link-mobile"><i class="fas fa-upload mr-2"></i>Upload</a>
+                <a href="contact.html" class="neu-nav-link-mobile"><i class="fas fa-envelope mr-2"></i>Contact</a>
+                <a href="faq.html" class="neu-nav-link-mobile active"><i class="fas fa-question-circle mr-2"></i>FAQ</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="neu-section-title">Frequently Asked Questions</h1>
+            <p class="neu-text-light max-w-2xl mx-auto">Find answers to common questions about our mod library, downloads, and community guidelines.</p>
+        </div>
+
+        <!-- Search -->
+        <div class="search-container">
+            <div class="relative">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" 
+                       id="faqSearch" 
+                       class="neu-input search-input" 
+                       placeholder="Search for answers...">
+            </div>
+        </div>
+
+        <!-- Categories -->
+        <div class="faq-categories">
+            <div class="faq-category active" data-category="all">All Questions</div>
+            <div class="faq-category" data-category="general">General</div>
+            <div class="faq-category" data-category="downloads">Downloads</div>
+            <div class="faq-category" data-category="upload">Uploading</div>
+            <div class="faq-category" data-category="safety">Safety</div>
+            <div class="faq-category" data-category="community">Community</div>
+            <div class="faq-category" data-category="technical">Technical</div>
+        </div>
+
+        <!-- FAQ List -->
+        <div id="faqList">
+            <!-- FAQ items will be loaded here -->
+            <div class="faq-item neu-skeleton" style="height: 100px; margin-bottom: 1rem;"></div>
+            <div class="faq-item neu-skeleton" style="height: 100px; margin-bottom: 1rem;"></div>
+            <div class="faq-item neu-skeleton" style="height: 100px; margin-bottom: 1rem;"></div>
+            <div class="faq-item neu-skeleton" style="height: 100px; margin-bottom: 1rem;"></div>
+        </div>
+
+        <!-- No Results -->
+        <div id="noResults" class="no-results hidden">
+            <i class="fas fa-search text-4xl neu-text-accent mb-4"></i>
+            <h3 class="text-xl font-semibold neu-text-primary mb-2">No results found</h3>
+            <p class="neu-text-light mb-4">Try searching with different keywords or browse the categories</p>
+        </div>
+
+        <!-- Contact CTA -->
+        <div class="contact-cta">
+            <h3 class="text-xl font-semibold neu-text-primary mb-3">Still have questions?</h3>
+            <p class="neu-text-light mb-6 max-w-2xl mx-auto">Can't find what you're looking for? Our support team is here to help you with any questions or issues.</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="contact.html" class="neu-btn neu-btn-primary">
+                    <i class="fas fa-envelope mr-2"></i> Contact Support
+                </a>
+                <a href="#" class="neu-btn">
+                    <i class="fab fa-discord mr-2"></i> Join Discord
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="neu-footer">
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <div class="neu-logo">
+                            <i class="fas fa-bolt text-blue-500"></i>
+                        </div>
+                        <span class="text-xl font-bold neu-text-primary">BloodStrike<span class="neu-text-accent">Mods</span></span>
+                    </div>
+                    <p class="neu-text-gray mt-2">Premium mods for the ultimate gaming experience</p>
+                </div>
+                
+                <div class="flex space-x-6">
+                    <a href="#" class="neu-social-icon">
+                        <i class="fab fa-discord"></i>
+                    </a>
+                    <a href="#" class="neu-social-icon">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="neu-social-icon">
+                        <i class="fab fa-reddit"></i>
+                    </a>
+                    <a href="#" class="neu-social-icon">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <hr class="my-6 border-gray-700">
+            
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <p class="neu-text-gray text-sm">© 2024 BloodStrike H@ck Library. All rights reserved.</p>
+                <div class="flex space-x-4 mt-4 md:mt-0">
+                    <a href="terms.html" class="neu-footer-link">Terms of Service</a>
+                    <a href="privacy.html" class="neu-footer-link">Privacy Policy</a>
+                    <a href="contact.html" class="neu-footer-link">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
+
+    <script>
+        class FAQPage {
+            constructor() {
+                this.faqData = [];
+                this.filteredFAQ = [];
+                this.activeCategory = 'all';
+                this.searchQuery = '';
+                
+                this.init();
+            }
+            
+            async init() {
+                await this.loadFAQ();
+                this.initEventListeners();
+                this.renderFAQ();
+            }
+            
+            async loadFAQ() {
+                try {
+                    // In a real app, fetch from Supabase
+                    // For now, use comprehensive FAQ data
+                    this.faqData = [
+                        {
+                            id: 1,
+                            question: "How do I download and install mods?",
+                            answer: "Browse the mod library, select a mod, and click the download button. Follow the installation guide provided by the mod author. Most mods come with detailed instructions in their description or guide section.",
+                            category: "downloads",
+                            tags: ["download", "install", "beginner"]
+                        },
+                        {
+                            id: 2,
+                            question: "Are the mods safe to use?",
+                            answer: "All mods are scanned for malware before being approved. However, we recommend: 1) Using antivirus software, 2) Downloading only from trusted authors, 3) Reading user reviews, and 4) Creating backups of important files.",
+                            category: "safety",
+                            tags: ["safety", "malware", "security"]
+                        },
+                        {
+                            id: 3,
+                            question: "Can I upload my own mods?",
+                            answer: "Yes! Create an account, then go to the Upload page. Fill in all required information including a detailed guide. Your mod will be reviewed by our team within 24-48 hours before being published to the library.",
+                            category: "upload",
+                            tags: ["upload", "create", "submit"]
+                        },
+                        {
+                            id: 4,
+                            question: "Why was my mod rejected?",
+                            answer: "Common reasons for rejection: 1) Contains malware or suspicious code, 2) Insufficient documentation, 3) Doesn't work as described, 4) Violates our community guidelines, 5) Poor quality or incomplete submission.",
+                            category: "upload",
+                            tags: ["rejection", "guidelines", "quality"]
+                        },
+                        {
+                            id: 5,
+                            question: "How do I report a broken mod?",
+                            answer: "You can: 1) Use the contact form to report to admins, 2) Message the mod author directly through their contact link, 3) Leave a comment on the mod's page to alert other users, or 4) Join our Discord community for support.",
+                            category: "community",
+                            tags: ["report", "broken", "support"]
+                        },
+                        {
+                            id: 6,
+                            question: "Is using mods against the game's Terms of Service?",
+                            answer: "Mod usage may violate some games' ToS. We recommend: 1) Reading the game's official ToS, 2) Using mods in single-player/offline modes when possible, 3) Being aware of potential risks including account bans. We are not responsible for any consequences.",
+                            category: "safety",
+                            tags: ["tos", "legal", "risk"]
+                        },
+                        {
+                            id: 7,
+                            question: "How often are mods updated?",
+                            answer: "Mod authors are responsible for updating their mods. We encourage authors to update when new game versions are released. You can check the 'Last Updated' date on each mod's page and subscribe to author updates.",
+                            category: "general",
+                            tags: ["updates", "maintenance", "versions"]
+                        },
+                        {
+                            id: 8,
+                            question: "Can I request a specific mod?",
+                            answer: "Yes! Join our Discord community to request mods or suggest features. You can also contact mod authors directly if they accept requests. Popular requests may attract developers to create the mod.",
+                            category: "community",
+                            tags: ["request", "suggestions", "features"]
+                        },
+                        {
+                            id: 9,
+                            question: "What file formats are supported for upload?",
+                            answer: "We accept: ZIP, RAR, 7Z, EXE, and DLL files. Maximum file size is 100MB. All files are scanned for malware. Source code is encouraged but not required.",
+                            category: "technical",
+                            tags: ["formats", "files", "upload"]
+                        },
+                        {
+                            id: 10,
+                            question: "How do ratings and reviews work?",
+                            answer: "Users can rate mods from 1-5 stars and leave optional reviews. Only registered users can rate. Ratings help other users find quality mods. Constructive feedback helps authors improve their work.",
+                            category: "community",
+                            tags: ["ratings", "reviews", "feedback"]
+                        },
+                        {
+                            id: 11,
+                            question: "What happens if I forget my password?",
+                            answer: "Click 'Forgot Password' on the login page. You'll receive an email with a reset link. The link expires in 24 hours. If you don't receive the email, check your spam folder or contact support.",
+                            category: "general",
+                            tags: ["password", "account", "recovery"]
+                        },
+                        {
+                            id: 12,
+                            question: "Can I delete my account?",
+                            answer: "Yes, contact support to request account deletion. Note: Your uploaded mods may remain unless specifically requested for removal. All personal data will be deleted in accordance with our privacy policy.",
+                            category: "general",
+                            tags: ["account", "delete", "privacy"]
+                        },
+                        {
+                            id: 13,
+                            question: "How do I become a featured mod author?",
+                            answer: "Featured authors are selected based on: 1) Quality and popularity of mods, 2) Regular updates and support, 3) Positive community feedback, 4) Contribution to the community. Focus on creating great mods and the recognition will follow.",
+                            category: "community",
+                            tags: ["featured", "author", "recognition"]
+                        },
+                        {
+                            id: 14,
+                            question: "What are the system requirements for mods?",
+                            answer: "Requirements vary by mod. Check each mod's page for specific requirements. Most mods require: 1) Windows 10/11, 2) Latest game version, 3) Administrative privileges for installation, 4) Specific CPU architecture (x64/x86).",
+                            category: "technical",
+                            tags: ["requirements", "system", "compatibility"]
+                        },
+                        {
+                            id: 15,
+                            question: "How do I update an existing mod?",
+                            answer: "Go to your mod's page and click 'Edit'. Upload the new version files and update the changelog. The updated version will need re-approval if significant changes were made. Keep users informed about updates.",
+                            category: "upload",
+                            tags: ["update", "version", "maintain"]
+                        }
+                    ];
+                    
+                    this.filteredFAQ = [...this.faqData];
+                    
+                } catch (error) {
+                    console.error('Error loading FAQ:', error);
+                    app.showToast('Error loading FAQ', 'error');
+                }
+            }
+            
+            initEventListeners() {
+                // Category filtering
+                document.querySelectorAll('.faq-category').forEach(category => {
+                    category.addEventListener('click', () => {
+                        this.setActiveCategory(category.dataset.category);
+                    });
+                });
+                
+                // Search input
+                const searchInput = document.getElementById('faqSearch');
+                if (searchInput) {
+                    let searchTimeout;
+                    searchInput.addEventListener('input', (e) => {
+                        clearTimeout(searchTimeout);
+                        searchTimeout = setTimeout(() => {
+                            this.searchFAQ(e.target.value);
+                        }, 300);
+                    });
+                }
+            }
+            
+            setActiveCategory(category) {
+                this.activeCategory = category;
+                
+                // Update UI
+                document.querySelectorAll('.faq-category').forEach(cat => {
+                    cat.classList.remove('active');
+                });
+                document.querySelector(`.faq-category[data-category="${category}"]`).classList.add('active');
+                
+                // Filter and render
+                this.filterFAQ();
+                this.renderFAQ();
+            }
+            
+            searchFAQ(query) {
+                this.searchQuery = query.toLowerCase().trim();
+                this.filterFAQ();
+                this.renderFAQ();
+            }
+            
+            filterFAQ() {
+                this.filteredFAQ = this.faqData.filter(faq => {
+                    // Category filter
+                    if (this.activeCategory !== 'all' && faq.category !== this.activeCategory) {
+                        return false;
+                    }
+                    
+                    // Search filter
+                    if (this.searchQuery) {
+                        const searchText = `${faq.question} ${faq.answer} ${faq.tags.join(' ')}`.toLowerCase();
+                        if (!searchText.includes(this.searchQuery)) {
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                });
+            }
+            
+            renderFAQ() {
+                const container = document.getElementById('faqList');
+                const noResults = document.getElementById('noResults');
+                
+                if (!container) return;
+                
+                // Clear container
+                container.innerHTML = '';
+                
+                if (this.filteredFAQ.length === 0) {
+                    container.classList.add('hidden');
+                    noResults.classList.remove('hidden');
+                    return;
+                }
+                
+                container.classList.remove('hidden');
+                noResults.classList.add('hidden');
+                
+                // Render FAQ items
+                this.filteredFAQ.forEach(faq => {
+                    const faqItem = document.createElement('div');
+                    faqItem.className = 'faq-item';
+                    faqItem.innerHTML = `
+                        <div class="faq-question">
+                            <span>${faq.question}</span>
+                            <i class="fas fa-chevron-down faq-toggle"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p class="neu-text-primary mb-3">${faq.answer}</p>
+                            <div class="flex flex-wrap gap-2">
+                                ${faq.tags.map(tag => 
+                                    `<span class="neu-badge-sm">${tag}</span>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    `;
+                    
+                    container.appendChild(faqItem);
+                    
+                    // Add click event
+                    faqItem.querySelector('.faq-question').addEventListener('click', () => {
+                        faqItem.classList.toggle('active');
+                    });
+                });
+            }
+        }
+        
+        // Initialize FAQ page
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialize main app first
+            if (!window.app) {
+                window.app = new BloodStrikeApp();
+            }
+            
+            // Initialize FAQ page
+            window.faqPage = new FAQPage();
+        });
+    </script>
+</body>
+</html>

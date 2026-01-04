@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service | BloodStrike H@ck Library</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../styles/neumorphic.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../supabase-config.js" defer></script>
+    <script src="../app.js" defer></script>
+    <style>
+        .legal-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .legal-section {
+            margin-bottom: 3rem;
+        }
+        
+        .legal-section h2 {
+            color: var(--neu-text);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--neu-primary);
+        }
+        
+        .legal-section h3 {
+            color: var(--neu-text);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 1.5rem 0 0.75rem;
+        }
+        
+        .legal-section p {
+            color: var(--neu-text-light);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .legal-section ul, .legal-section ol {
+            color: var(--neu-text-light);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+        
+        .legal-section li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .legal-section a {
+            color: var(--neu-primary);
+            text-decoration: none;
+        }
+        
+        .legal-section a:hover {
+            text-decoration: underline;
+        }
+        
+        .last-updated {
+            color: var(--neu-text-light);
+            font-style: italic;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--neu-light);
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .back-to-home {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--neu-dark);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navbar -->
+    <nav class="neu-navbar">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="neu-logo">
+                        <i class="fas fa-bolt text-blue-500"></i>
+                    </div>
+                    <a href="../index.html" class="text-2xl font-bold neu-text-primary">BloodStrike<span class="neu-text-accent">Mods</span></a>
+                </div>
+                
+                <div class="hidden md:flex space-x-6">
+                    <a href="../index.html" class="neu-nav-link"><i class="fas fa-home mr-2"></i>Home</a>
+                    <a href="library.html" class="neu-nav-link"><i class="fas fa-box-archive mr-2"></i>Library</a>
+                    <a href="contact.html" class="neu-nav-link"><i class="fas fa-envelope mr-2"></i>Contact</a>
+                    <a href="faq.html" class="neu-nav-link"><i class="fas fa-question-circle mr-2"></i>FAQ</a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button id="themeToggle" class="neu-btn-icon">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div id="authButtons" class="hidden">
+                        <a href="login.html" class="neu-btn-sm mr-2">Login</a>
+                        <a href="login.html?action=signup" class="neu-btn-sm neu-btn-primary">Sign Up</a>
+                    </div>
+                    <div id="userMenu" class="hidden">
+                        <div class="relative">
+                            <button id="userDropdownBtn" class="neu-btn-icon">
+                                <i class="fas fa-user"></i>
+                            </button>
+                            <div id="userDropdown" class="neu-dropdown hidden absolute right-0 mt-2">
+                                <a href="#" class="neu-dropdown-item"><i class="fas fa-heart mr-2"></i>Favorites</a>
+                                <a href="#" class="neu-dropdown-item"><i class="fas fa-history mr-2"></i>History</a>
+                                <a href="upload.html" class="neu-dropdown-item"><i class="fas fa-upload mr-2"></i>Upload</a>
+                                <hr class="my-2">
+                                <a href="#" id="logoutBtn" class="neu-dropdown-item text-red-500"><i class="fas fa-sign-out mr-2"></i>Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="mobileMenuBtn" class="neu-btn-icon md:hidden">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="neu-card mt-3 hidden md:hidden">
+                <a href="../index.html" class="neu-nav-link-mobile"><i class="fas fa-home mr-2"></i>Home</a>
+                <a href="library.html" class="neu-nav-link-mobile"><i class="fas fa-box-archive mr-2"></i>Library</a>
+                <a href="contact.html" class="neu-nav-link-mobile"><i class="fas fa-envelope mr-2"></i>Contact</a>
+                <a href="faq.html" class="neu-nav-link-mobile"><i class="fas fa-question-circle mr-2"></i>FAQ</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="legal-container">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="neu-section-title">Terms of Service</h1>
+                <p class="neu-text-light">Last Updated: January 1, 2024</p>
+            </div>
+
+            <!-- Last Updated Notice -->
+            <div class="last-updated">
+                <i class="fas fa-info-circle mr-2"></i>
+                Please read these Terms of Service carefully before using our website.
+            </div>
+
+            <!-- Terms Content -->
+            <div class="neu-card">
+                <div class="p-6">
+                    <!-- Introduction -->
+                    <div class="legal-section">
+                        <h2>1. Acceptance of Terms</h2>
+                        <p>By accessing and using BloodStrike H@ck Library ("the Service"), you accept and agree to be bound by the terms and provisions of this agreement. In addition, when using this Service, you shall be subject to any posted guidelines or rules applicable to such services.</p>
+                        <p>If you do not agree to these Terms of Service, please do not use our Service.</p>
+                    </div>
+
+                    <!-- Description of Service -->
+                    <div class="legal-section">
+                        <h2>2. Description of Service</h2>
+                        <p>BloodStrike H@ck Library provides a platform for users to share, discover, and download modifications ("mods") for various games. Our Service includes:</p>
+                        <ul>
+                            <li>A library of user-submitted game modifications</li>
+                            <li>User registration and profile management</li>
+                            <li>Mod upload and distribution system</li>
+                            <li>Community features including ratings, reviews, and comments</li>
+                            <li>Support and contact systems</li>
+                        </ul>
+                        <p>We reserve the right to modify or discontinue the Service at any time without notice.</p>
+                    </div>
+
+                    <!-- User Responsibilities -->
+                    <div class="legal-section">
+                        <h2>3. User Responsibilities</h2>
+                        <p>As a user of our Service, you agree to:</p>
+                        
+                        <h3>3.1 Account Security</h3>
+                        <p>You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.</p>
+                        
+                        <h3>3.2 Content Submission</h3>
+                        <p>When submitting mods or other content:</p>
+                        <ul>
+                            <li>You must own or have the right to distribute all submitted content</li>
+                            <li>Content must not contain malware, viruses, or harmful code</li>
+                            <li>Content must be accurately described</li>
+                            <li>You must provide clear installation and usage instructions</li>
+                            <li>Content must comply with all applicable laws and regulations</li>
+                        </ul>
+                        
+                        <h3>3.3 Prohibited Activities</h3>
+                        <p>You agree not to:</p>
+                        <ul>
+                            <li>Use the Service for any illegal purpose</li>
+                            <li>Upload content that infringes on intellectual property rights</li>
+                            <li>Distribute malicious software or viruses</li>
+                            <li>Harass, threaten, or abuse other users</li>
+                            <li>Attempt to gain unauthorized access to our systems</li>
+                            <li>Use automated systems to access the Service</li>
+                            <li>Impersonate any person or entity</li>
+                        </ul>
+                    </div>
+
+                    <!-- Mod Guidelines -->
+                    <div class="legal-section">
+                        <h2>4. Mod Submission Guidelines</h2>
+                        <p>All submitted mods must comply with the following guidelines:</p>
+                        
+                        <h3>4.1 Quality Standards</h3>
+                        <ul>
+                            <li>Mods must function as described</li>
+                            <li>Clear documentation must be provided</li>
+                            <li>Files must be properly packaged and organized</li>
+                            <li>Mods must not cause game instability or crashes</li>
+                        </ul>
+                        
+                        <h3>4.2 Safety Requirements</h3>
+                        <ul>
+                            <li>No malware, spyware, or viruses</li>
+                            <li>No unauthorized data collection</li>
+                            <li>No hidden or obfuscated code</li>
+                            <li>Transparent about all mod features and functions</li>
+                        </ul>
+                        
+                        <h3>4.3 Content Restrictions</h3>
+                        <ul>
+                            <li>No hate speech or discriminatory content</li>
+                            <li>No sexually explicit material</li>
+                            <li>No content promoting violence or illegal activities</li>
+                            <li>No unauthorized game cheats that provide unfair advantages in multiplayer</li>
+                        </ul>
+                    </div>
+
+                    <!-- Intellectual Property -->
+                    <div class="legal-section">
+                        <h2>5. Intellectual Property Rights</h2>
+                        
+                        <h3>5.1 Your Content</h3>
+                        <p>You retain ownership of any intellectual property rights that you hold in the content you submit. By submitting content, you grant us a worldwide, non-exclusive, royalty-free license to use, reproduce, modify, and distribute your content through our Service.</p>
+                        
+                        <h3>5.2 Our Content</h3>
+                        <p>All content provided by BloodStrike H@ck Library, including but not limited to website design, text, graphics, logos, and software, is our property or the property of our licensors and is protected by copyright and other intellectual property laws.</p>
+                        
+                        <h3>5.3 Game Copyrights</h3>
+                        <p>All game content, including but not limited to characters, artwork, and code, are property of their respective copyright holders. Mods are created under fair use principles and should not infringe on these rights.</p>
+                    </div>
+
+                    <!-- Disclaimer of Warranties -->
+                    <div class="legal-section">
+                        <h2>6. Disclaimer of Warranties</h2>
+                        <p>THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.</p>
+                        <p>WE DO NOT WARRANT THAT:</p>
+                        <ul>
+                            <li>THE SERVICE WILL BE UNINTERRUPTED OR ERROR-FREE</li>
+                            <li>DEFECTS WILL BE CORRECTED</li>
+                            <li>THE SERVICE OR SERVERS ARE FREE OF VIRUSES OR OTHER HARMFUL COMPONENTS</li>
+                            <li>ANY CONTENT IS ACCURATE, RELIABLE, OR COMPLETE</li>
+                        </ul>
+                        <p>YOU DOWNLOAD AND USE MODS AT YOUR OWN RISK. WE ARE NOT RESPONSIBLE FOR ANY DAMAGE TO YOUR COMPUTER SYSTEM, LOSS OF DATA, OR OTHER HARM THAT RESULTS FROM DOWNLOADING OR USING ANY CONTENT FROM OUR SERVICE.</p>
+                    </div>
+
+                    <!-- Limitation of Liability -->
+                    <div class="legal-section">
+                        <h2>7. Limitation of Liability</h2>
+                        <p>IN NO EVENT SHALL BLOODSTRIKE H@CK LIBRARY, ITS DIRECTORS, EMPLOYEES, PARTNERS, AGENTS, SUPPLIERS, OR AFFILIATES BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING WITHOUT LIMITATION, LOSS OF PROFITS, DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, RESULTING FROM:</p>
+                        <ul>
+                            <li>YOUR ACCESS TO OR USE OF OR INABILITY TO ACCESS OR USE THE SERVICE</li>
+                            <li>ANY CONDUCT OR CONTENT OF ANY THIRD PARTY ON THE SERVICE</li>
+                            <li>ANY CONTENT OBTAINED FROM THE SERVICE</li>
+                            <li>UNAUTHORIZED ACCESS, USE, OR ALTERATION OF YOUR TRANSMISSIONS OR CONTENT</li>
+                        </ul>
+                        <p>THIS LIMITATION APPLIES WHETHER THE ALLEGED LIABILITY IS BASED ON CONTRACT, TORT, NEGLIGENCE, STRICT LIABILITY, OR ANY OTHER BASIS, EVEN IF WE HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+                    </div>
+
+                    <!-- Account Termination -->
+                    <div class="legal-section">
+                        <h2>8. Account Termination</h2>
+                        <p>We may terminate or suspend your account immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms.</p>
+                        <p>Upon termination, your right to use the Service will immediately cease. If you wish to terminate your account, you may simply discontinue using the Service or contact us to request account deletion.</p>
+                    </div>
+
+                    <!-- Changes to Terms -->
+                    <div class="legal-section">
+                        <h2>9. Changes to Terms</h2>
+                        <p>We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material, we will try to provide at least 30 days' notice prior to any new terms taking effect. What constitutes a material change will be determined at our sole discretion.</p>
+                        <p>By continuing to access or use our Service after those revisions become effective, you agree to be bound by the revised terms.</p>
+                    </div>
+
+                    <!-- Governing Law -->
+                    <div class="legal-section">
+                        <h2>10. Governing Law</h2>
+                        <p>These Terms shall be governed and construed in accordance with the laws of the United States, without regard to its conflict of law provisions.</p>
+                        <p>Our failure to enforce any right or provision of these Terms will not be considered a waiver of those rights. If any provision of these Terms is held to be invalid or unenforceable by a court, the remaining provisions of these Terms will remain in effect.</p>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="legal-section">
+                        <h2>11. Contact Us</h2>
+                        <p>If you have any questions about these Terms, please contact us:</p>
+                        <ul>
+                            <li>Email: legal@bloodstrikemods.com</li>
+                            <li>Contact Form: <a href="contact.html">Contact Support</a></li>
+                            <li>Discord: Join our community server</li>
+                        </ul>
+                    </div>
+
+                    <!-- Back to Home -->
+                    <div class="back-to-home">
+                        <a href="../index.html" class="neu-btn">
+                            <i class="fas fa-home mr-2"></i> Back to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="neu-footer">
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <div class="neu-logo">
+                            <i class="fas fa-bolt text-blue-500"></i>
+                        </div>
+                        <span class="text-xl font-bold neu-text-primary">BloodStrike<span class="neu-text-accent">Mods</span></span>
+                    </div>
+                    <p class="neu-text-gray mt-2">Premium mods for the ultimate gaming experience</p>
+                </div>
+                
+                <div class="flex space-x-6">
+                    <a href="#" class="neu-social-icon">
+                        <i class="fab fa-discord"></i>
+                    </a>
+                    <a href="#" class="neu-social-icon">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="neu-social-icon">
+                        <i class="fab fa-reddit"></i>
+                    </a>
+                    <a href="#" class="neu-social-icon">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <hr class="my-6 border-gray-700">
+            
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <p class="neu-text-gray text-sm">© 2024 BloodStrike H@ck Library. All rights reserved.</p>
+                <div class="flex space-x-4 mt-4 md:mt-0">
+                    <a href="terms.html" class="neu-footer-link">Terms of Service</a>
+                    <a href="privacy.html" class="neu-footer-link">Privacy Policy</a>
+                    <a href="contact.html" class="neu-footer-link">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
+</body>
+</html>

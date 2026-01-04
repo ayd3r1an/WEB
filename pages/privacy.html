@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy | BloodStrike H@ck Library</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../styles/neumorphic.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../supabase-config.js" defer></script>
+    <script src="../app.js" defer></script>
+    <style>
+        .privacy-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .privacy-section {
+            margin-bottom: 2.5rem;
+        }
+        
+        .privacy-section h2 {
+            color: var(--neu-text);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--neu-primary);
+        }
+        
+        .privacy-section h3 {
+            color: var(--neu-text);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 1.5rem 0 0.75rem;
+        }
+        
+        .privacy-section p {
+            color: var(--neu-text-light);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .privacy-section ul, .privacy-section ol {
+            color: var(--neu-text-light);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+        
+        .privacy-section li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .privacy-section a {
+            color: var(--neu-primary);
+            text-decoration: none;
+        }
+        
+        .privacy-section a:hover {
+            text-decoration: underline;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+        
+        .data-table th {
+            background: var(--neu-light);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--neu-text);
+            border-bottom: 2px solid var(--neu-dark);
+        }
+        
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--neu-dark);
+            color: var(--neu-text-light);
+        }
+        
+        .data-table tr:hover {
+            background: var(--neu-light);
+        }
+        
+        .last-updated {
+            color: var(--neu-text-light);
+            font-style: italic;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--neu-light);
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .back-to-home {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--neu-dark);
+        }
+        
+        .cookie-consent {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 600px;
+            background: var(--neu-bg);
+            border-radius: 16px;
+            box-shadow: 8px 8px 16px var(--neu-dark),
+                        -8px -8px 16px var(--neu-light);
+            padding: 1.5rem;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .cookie-consent.active {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navbar -->
+    <nav class="neu-navbar">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="neu-logo">
+                        <i class="fas fa-bolt text-blue-500"></i>
+                    </div>
+                    <a href="../index.html" class="text-2xl font-bold neu-text-primary">BloodStrike<span class="neu-text-accent">Mods</span></a>
+                </div>
+                
+                <div class="hidden md:flex space-x-6">
+                    <a href="../index.html" class="neu-nav-link"><i class="fas fa-home mr-2"></i>Home</a>
+                    <a href="library.html" class="neu-nav-link"><i class="fas fa-box-archive mr-2"></i>Library</a>
+                    <a href="contact.html" class="neu-nav-link"><i class="fas fa-envelope mr-2"></i>Contact</a>
+                    <a href="faq.html" class="neu-nav-link"><i class="fas fa-question-circle mr-2"></i>FAQ</a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button id="themeToggle" class="neu-btn-icon">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div id="authButtons" class="hidden">
+                        <a href="login.html" class="neu-btn-sm mr-2">Login</a>
+                        <a href="login.html?action=signup" class="neu-btn-sm neu-btn-primary">Sign Up</a>
+                    </div>
+                    <div id="userMenu" class="hidden">
+                        <div class="relative">
+                            <button id="userDropdownBtn" class="neu-btn-icon">
+                                <i class="fas fa-user"></i>
+                            </button>
+                            <div id="userDropdown" class="neu-dropdown hidden absolute right-0 mt-2">
+                                <a href="#" class="neu-dropdown-item"><i class="fas fa-heart mr-2"></i>Favorites</a>
+                                <a href="#" class="neu-dropdown-item"><i class="fas fa-history mr-2"></i>History</a>
+                                <a href="upload.html" class="neu-dropdown-item"><i class="fas fa-upload mr-2"></i>Upload</a>
+                                <hr class="my-2">
+                                <a href="#" id="logoutBtn" class="neu-dropdown-item text-red-500"><i class="fas fa-sign-out mr-2"></i>Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="mobileMenuBtn" class="neu-btn-icon md:hidden">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="neu-card mt-3 hidden md:hidden">
+                <a href="../index.html" class="neu-nav-link-mobile"><i class="fas fa-home mr-2"></i>Home</a>
+                <a href="library.html" class="neu-nav-link-mobile"><i class="fas fa-box-archive mr-2"></i>Library</a>
+                <a href="contact.html" class="neu-nav-link-mobile"><i class="fas fa-envelope mr-2"></i>Contact</a>
+                <a href="faq.html" class="neu-nav-link-mobile"><i class="fas fa-question-circle mr-2"></i>FAQ</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="privacy-container">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="neu-section-title">Privacy Policy</h1>
+                <p class="neu-text-light">Last Updated: January 1, 2024</p>
+            </div>
+
+            <!-- Last Updated Notice -->
+            <div class="last-updated">
+                <i class="fas fa-shield-alt mr-2"></i>
+                Your privacy is important to us. This policy explains how we collect, use, and protect your information.
+            </div>
+
+            <!-- Privacy Content -->
+            <div class="neu-card">
+                <div class="p-6">
+                    <!-- Introduction -->
+                    <div class="privacy-section">
+                        <h2>1. Introduction</h2>
+                        <p>Welcome to BloodStrike H@ck Library ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. If you have any questions or concerns about this privacy notice or our practices with regard to your personal information, please contact us at privacy@bloodstrikemods.com.</p>
+                        <p>This Privacy Policy describes how we collect, use, and share your personal information when you use our website and services (collectively, the "Service").</p>
+                    </div>
+
+                    <!-- Information We Collect -->
+                    <div class="privacy-section">
+                        <h2>2. Information We Collect</h2>
+                        
+                        <h3>2.1 Information You Provide to Us</h3>
+                        <p>We collect personal information that you voluntarily provide to us when you:</p>
+                        <ul>
+                            <li>Register for an account</li>
+                            <li>Upload mods or other content</li>
+                            <li>Leave ratings or reviews</li>
+                            <li>Post comments or participate in discussions</li>
+                            <li>Contact us through support forms</li>
+                            <li>Subscribe to newsletters or updates</li>
+                        </ul>
+                        
+                        <h3>2.2 Information Collected Automatically</h3>
+                        <p>We automatically collect certain information when you visit, use, or navigate the Service:</p>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Type of Information</th>
+                                    <th>Purpose</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Log and Usage Data</td>
+                                    <td>Service diagnostics, security monitoring, and analytics</td>
+                                </tr>
+                                <tr>
+                                    <td>Device Information</td>
+                                    <td>Compatibility optimization and troubleshooting</td>
+                                </tr>
+                                <tr>
+                                    <td>Location Data</td>
+                                    <td>Content localization and regional compliance</td>
+                                </tr>
+                                <tr>
+                                    <td>Cookies and Similar Technologies</td>
+                                    <td>Session management, preferences, and analytics</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h3>2.3 Information from Third Parties</h3>
+                        <p>We may receive information about you from other sources, including:</p>
+                        <ul>
+                            <li>Social media platforms when you use social login</li>
+                            <li>Analytics providers</li>
+                            <li>Advertising partners</li>
+                            <li>Publicly available sources</li>
+                        </ul>
+                    </div>
+
+                    <!-- How We Use Your Information -->
+                    <div class="privacy-section">
+                        <h2>3. How We Use Your Information</h2>
+                        <p>We use personal information collected via our Service for a variety of business purposes described below:</p>
+                        
+                        <h3>3.1 To Provide and Maintain Our Service</h3>
+                        <ul>
+                            <li>Create and manage your account</li>
+                            <li>Process your mod uploads and downloads</li>
+                            <li>Enable community features (ratings, comments, etc.)</li>
+                            <li>Send service-related communications</li>
+                        </ul>
+                        
+                        <h3>3.2 To Improve Our Service</h3>
+                        <ul>
+                            <li>Analyze usage patterns and trends</li>
+                            <li>Develop new features and functionality</li>
+                            <li>Conduct research and analysis</li>
+                            <li>Test and improve service performance</li>
+                        </ul>
+                        
+                        <h3>3.3 To Communicate With You</h3>
+                        <ul>
+                            <li>Respond to your inquiries and support requests</li>
+                            <li>Send administrative information</li>
+                            <li>Provide updates about the Service</li>
+                            <li>Send marketing and promotional communications (with consent)</li>
+                        </ul>
+                        
+                        <h3>3.4 For Security and Fraud Prevention</h3>
+                        <ul>
+                            <li>Monitor and prevent fraud and abuse</li>
+                            <li>Enforce our terms and policies</li>
+                            <li>Protect the security of our Service</li>
+                            <li>Verify user identity and prevent unauthorized access</li>
+                        </ul>
+                    </div>
+
+                    <!-- How We Share Your Information -->
+                    <div class="privacy-section">
+                        <h2>4. How We Share Your Information</h2>
+                        <p>We may share your information in the following situations:</p>
+                        
+                        <h3>4.1 With Your Consent</h3>
+                        <p>We may disclose your personal information for any purpose with your consent.</p>
+                        
+                        <h3>4.2 Service Providers</h3>
+                        <p>We may share your data with third-party vendors, service providers, contractors, or agents who perform services for us, including:</p>
+                        <ul>
+                            <li>Payment processing</li>
+                            <li>Data analysis</li>
+                            <li>Email delivery</li>
+                            <li>Hosting services</li>
+                            <li>Customer service</li>
+                        </ul>
+                        
+                        <h3>4.3 Business Transfers</h3>
+                        <p>We may share or transfer your information in connection with, or during negotiations of, any merger, sale of company assets, financing, or acquisition of all or a portion of our business to another company.</p>
+                        
+                        <h3>4.4 Legal Requirements</h3>
+                        <p>We may disclose your information where we are legally required to do so in order to comply with applicable law, governmental requests, a judicial proceeding, court order, or legal process.</p>
+                    </div>
+
+                    <!-- Cookies and Tracking Technologies -->
+                    <div class="privacy-section">
+                        <h2>5. Cookies and Tracking Technologies</h2>
+                        
+                        <h3>5.1 What Are Cookies</h3>
+                        <p>Cookies are small data files that are placed on your computer or mobile device when you visit a website. We use cookies and similar tracking technologies to collect and store information.</p>
+                        
+                        <h3>5.2 Types of Cookies We Use</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Cookie Type</th>
+                                    <th>Purpose</th>
+                                    <th>Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Essential Cookies</td>
+                                    <td>Required for basic site functionality</td>
+                                    <td>Session</td>
+                                </tr>
+                                <tr>
+                                    <td>Performance Cookies</td>
+                                    <td>Analyze how visitors use our site</td>
+                                    <td>1 year</td>
+                                </tr>
+                                <tr>
+                                    <td>Functionality Cookies</td>
+                                    <td>Remember your preferences</td>
+                                    <td>1 year</td>
+                                </tr>
+                                <tr>
+                                    <td>Advertising Cookies</td>
+                                    <td>Deliver relevant advertisements</td>
+                                    <td>6 months</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h3>5.3 Your Cookie Choices</h3>
+                        <p>Most web browsers are set to accept cookies by default. You can usually choose to set your browser to remove or reject browser cookies. Please note that if you choose to remove or reject cookies, this could affect the availability and functionality of our Service.</p>
+                    </div>
+
+                    <!-- Data Security -->
+                    <div class="privacy-section">
+                        <h2>6. Data Security</h2>
+                        <p>We have implemented appropriate technical and organizational security measures designed to protect the security of any personal information we process. However, despite our safeguards and efforts to secure your information, no electronic transmission over the Internet or information storage technology can be guaranteed to be 100% secure.</p>
+                        <p>We recommend that you:</p>
+                        <ul>
+                            <li>Use strong, unique passwords for your accounts</li>
+                            <li>Enable two-factor authentication when available</li>
+                            <li>Keep your login credentials confidential</li>
+                            <li>Log out of your account when using shared devices</li>
+                            <li>Use antivirus and anti-malware software</li>
+                        </ul>
+                    </div>
+
+                    <!-- Data Retention -->
+                    <div class="privacy-section">
+                        <h2>7. Data Retention</h2>
+                        <p>We will only keep your personal information for as long as it is necessary for the purposes set out in this privacy notice, unless a longer retention period is required or permitted by law.</p>
+                        <p>When we have no ongoing legitimate business need to process your personal information, we will either delete or anonymize such information, or, if this is not possible, we will securely store your personal information and isolate it from any further processing until deletion is possible.</p>
+                    </div>
+
+                    <!-- Your Privacy Rights -->
+                    <div class="privacy-section">
+                        <h2>8. Your Privacy Rights</h2>
+                        <p>Depending on your location, you may have the following rights regarding your personal information:</p>
+                        
+                        <h3>8.1 Access and Update</h3>
+                        <p>You can review and change your personal information by logging into your account and visiting your account settings page.</p>
+                        
+                        <h3>8.2 Data Portability</h3>
+                        <p>You have the right to request a copy of your personal data in a structured, machine-readable format.</p>
+                        
+                        <h3>8.3 Deletion</h3>
+                        <p>You can request deletion of your personal information, subject to certain exceptions prescribed by law.</p>
+                        
+                        <h3>8.4 Opt-Out of Marketing</h3>
+                        <p>You can unsubscribe from our marketing emails at any time by clicking the "unsubscribe" link in the emails.</p>
+                        
+                        <h3>8.5 Cookie Preferences</h3>
+                        <p>You can set or amend your web browser controls to accept or refuse cookies.</p>
+                        
+                        <p>To exercise any of these rights, please contact us using the contact details provided below.</p>
+                    </div>
+
+                    <!-- Children's Privacy -->
+                    <div class="privacy-section">
+                        <h2>9. Children's Privacy</h2>
+                        <p>Our Service is not intended for children under the age of 13. We do not knowingly collect personal information from children under 13. If you are a parent or guardian and you are aware that your child has provided us with personal information, please contact us.</p>
+                        <p>If we become aware that we have collected personal information from children under 13 without verification of parental consent, we take steps to remove that information from our servers.</p>
+                    </div>
+
+                    <!-- Changes to This Policy -->
+                    <div class="privacy-section">
+                        <h2>10. Changes to This Policy</h2>
+                        <p>We may update this privacy policy from time to time. The updated version will be indicated by an updated "Last Updated" date and the updated version will be effective as soon as it is accessible.</p>
+                        <p>We encourage you to review this privacy policy frequently to be informed of how we are protecting your information.</p>
+                    </div>
+
+                    <!-- Contact Us -->
+                    <div class="privacy-section">
+                        <h2>11. Contact Us</h2>
+                        <p>If you have questions or comments about this policy, you may contact us at:</p>
+                        <ul>
+                            <li>Email: privacy@bloodstrikemods.com</li>
+                            <li>Contact Form: <a href="contact.html">Contact Support</a></li>
+                            <li>Postal Address: [Your Company Address]</li>
+                        </ul>
+                        <p>We will respond to your request within 30 days.</p>
+                    </div>
+
+                    <!-- Cookie Consent Banner -->
+                    <div class="privacy-section">
+                        <h2>12. Cookie Consent</h2>
+                        <p>By using our Service, you consent to the use of cookies as described in this policy. You can manage your cookie preferences at any time.</p>
+                        <button id="manageCookies" class="neu-btn neu-btn-primary">
+                            <i class="fas fa-cookie-bite mr-2"></i> Manage Cookie Preferences
+                        </button>
+                    </div>
+
+                    <!-- Back to Home -->
+                    <div class="back-to-home">
+                        <a href="../index.html" class="neu-btn">
+                            <i class="fas fa-home mr-2"></i> Back to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Cookie Consent Banner -->
+    <div id="cookieConsent" class="cookie-consent">
+        <div class="flex flex-col md:flex-row md:items-center gap-4">
+            <div class="flex-1">
+                <h3 class="font-semibold neu-text-primary mb-1">Cookie Consent</h3>
+                <p class="neu-text-light text-sm">We use cookies to enhance your browsing experience, serve personalized content, and analyze our traffic. By clicking "Accept All", you consent to our use of cookies.</p>
+                <a href="privacy.html" class="neu-link text-sm">Learn more</a>
+            </div>
+            <div class="flex gap-2">
+                <button id="rejectCookies" class="neu-btn-sm">Reject All</button>
+                <button id="acceptCookies" class="neu-btn-sm neu-btn-primary">Accept All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="neu-footer">
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <div class="neu-logo">
+                            <i class="fas fa-bolt text-blue-500"></i>
+                        </div>
+                        <span class="text-xl font-bold neu-text-primary">BloodStrike<span class="neu-text-accent">Mods</span></span>
+                    </div>
+                    <p class="neu-text-gray mt-2">Premium mods for the ultimate gaming experience</p>
+                </div>
+                
+                <div class="flex space-x-6">
+                    <a href="#" class="neu-social-icon">
+                        <i class="fab fa-discord"></i>
+                    </a>
+                    <a href="#" class="neu-social-icon">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="neu-social-icon">
+                        <i class="fab fa-reddit"></i>
+                    </a>
+                    <a href="#" class="neu-social-icon">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <hr class="my-6 border-gray-700">
+            
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <p class="neu-text-gray text-sm">© 2024 BloodStrike H@ck Library. All rights reserved.</p>
+                <div class="flex space-x-4 mt-4 md:mt-0">
+                    <a href="terms.html" class="neu-footer-link">Terms of Service</a>
+                    <a href="privacy.html" class="neu-footer-link">Privacy Policy</a>
+                    <a href="contact.html" class="neu-footer-link">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
+
+    <script>
+        class PrivacyPage {
+            constructor() {
+                this.cookieConsent = this.getCookieConsent();
+                this.init();
+            }
+            
+            init() {
+                this.initEventListeners();
+                this.showCookieConsentIfNeeded();
+            }
+            
+            initEventListeners() {
+                // Cookie consent buttons
+                document.getElementById('acceptCookies')?.addEventListener('click', () => {
+                    this.setCookieConsent('accepted');
+                    this.hideCookieConsent();
+                    app.showToast('Cookie preferences saved', 'success');
+                });
+                
+                document.getElementById('rejectCookies')?.addEventListener('click', () => {
+                    this.setCookieConsent('rejected');
+                    this.hideCookieConsent();
+                    app.showToast('Cookie preferences saved', 'success');
+                });
+                
+                // Manage cookies button
+                document.getElementById('manageCookies')?.addEventListener('click', () => {
+                    this.showCookieSettings();
+                });
+            }
+            
+            getCookieConsent() {
+                return localStorage.getItem('cookieConsent') || null;
+            }
+            
+            setCookieConsent(status) {
+                localStorage.setItem('cookieConsent', status);
+                this.cookieConsent = status;
+            }
+            
+            showCookieConsentIfNeeded() {
+                if (!this.cookieConsent) {
+                    setTimeout(() => {
+                        const consentBanner = document.getElementById('cookieConsent');
+                        if (consentBanner) {
+                            consentBanner.classList.add('active');
+                        }
+                    }, 1000);
+                }
+            }
+            
+            hideCookieConsent() {
+                const consentBanner = document.getElementById('cookieConsent');
+                if (consentBanner) {
+                    consentBanner.classList.remove('active');
+                }
+            }
+            
+            showCookieSettings() {
+                // In a real app, this would open a modal with detailed cookie settings
+                const modalContent = `
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold neu-text-primary">Cookie Preferences</h3>
+                        
+                        <div class="space-y-3">
+                            <label class="flex items-center justify-between">
+                                <div>
+                                    <div class="font-medium neu-text-primary">Essential Cookies</div>
+                                    <div class="text-sm neu-text-light">Required for basic site functionality</div>
+                                </div>
+                                <input type="checkbox" class="neu-toggle" checked disabled>
+                            </label>
+                            
+                            <label class="flex items-center justify-between">
+                                <div>
+                                    <div class="font-medium neu-text-primary">Performance Cookies</div>
+                                    <div class="text-sm neu-text-light">Help us understand how visitors use our site</div>
+                                </div>
+                                <input type="checkbox" class="neu-toggle" id="performanceCookies" ${this.cookieConsent === 'accepted' ? 'checked' : ''}>
+                            </label>
+                            
+                            <label class="flex items-center justify-between">
+                                <div>
+                                    <div class="font-medium neu-text-primary">Functionality Cookies</div>
+                                    <div class="text-sm neu-text-light">Remember your preferences and settings</div>
+                                </div>
+                                <input type="checkbox" class="neu-toggle" id="functionalityCookies" ${this.cookieConsent === 'accepted' ? 'checked' : ''}>
+                            </label>
+                            
+                            <label class="flex items-center justify-between">
+                                <div>
+                                    <div class="font-medium neu-text-primary">Advertising Cookies</div>
+                                    <div class="text-sm neu-text-light">Deliver relevant advertisements</div>
+                                </div>
+                                <input type="checkbox" class="neu-toggle" id="advertisingCookies" ${this.cookieConsent === 'accepted' ? 'checked' : ''}>
+                            </label>
+                        </div>
+                        
+                        <div class="flex gap-2 pt-4">
+                            <button class="neu-btn flex-1" id="saveCookieSettings">Save Preferences</button>
+                            <button class="neu-btn neu-btn-primary flex-1" id="acceptAllCookies">Accept All</button>
+                        </div>
+                    </div>
+                `;
+                
+                // Show modal with cookie settings
+                this.showModal('Cookie Settings', modalContent);
+                
+                // Add event listeners to modal buttons
+                setTimeout(() => {
+                    document.getElementById('saveCookieSettings')?.addEventListener('click', () => {
+                        const performance = document.getElementById('performanceCookies')?.checked || false;
+                        const functionality = document.getElementById('functionalityCookies')?.checked || false;
+                        const advertising = document.getElementById('advertisingCookies')?.checked || false;
+                        
+                        if (performance || functionality || advertising) {
+                            this.setCookieConsent('accepted');
+                        } else {
+                            this.setCookieConsent('rejected');
+                        }
+                        
+                        this.closeModal();
+                        app.showToast('Cookie preferences saved', 'success');
+                    });
+                    
+                    document.getElementById('acceptAllCookies')?.addEventListener('click', () => {
+                        this.setCookieConsent('accepted');
+                        this.closeModal();
+                        app.showToast('All cookies accepted', 'success');
+                    });
+                }, 100);
+            }
+            
+            showModal(title, content) {
+                // Create modal if it doesn't exist
+                let modal = document.getElementById('privacyModal');
+                if (!modal) {
+                    modal = document.createElement('div');
+                    modal.id = 'privacyModal';
+                    modal.className = 'neu-modal';
+                    modal.innerHTML = `
+                        <div class="neu-modal-content">
+                            <div class="neu-modal-header">
+                                <h3 class="text-lg font-semibold neu-text-primary">${title}</h3>
+                                <button class="neu-btn-icon close-privacy-modal">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="neu-modal-body" id="privacyModalBody"></div>
+                        </div>
+                    `;
+                    document.body.appendChild(modal);
+                    
+                    // Add close event
+                    modal.querySelector('.close-privacy-modal').addEventListener('click', () => {
+                        this.closeModal();
+                    });
+                    
+                    // Close on overlay click
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) {
+                            this.closeModal();
+                        }
+                    });
+                }
+                
+                // Set content and show
+                document.getElementById('privacyModalBody').innerHTML = content;
+                modal.classList.add('active');
+            }
+            
+            closeModal() {
+                const modal = document.getElementById('privacyModal');
+                if (modal) {
+                    modal.classList.remove('active');
+                }
+            }
+        }
+        
+        // Initialize privacy page
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialize main app first
+            if (!window.app) {
+                window.app = new BloodStrikeApp();
+            }
+            
+            // Initialize privacy page
+            window.privacyPage = new PrivacyPage();
+        });
+    </script>
+</body>
+</html>

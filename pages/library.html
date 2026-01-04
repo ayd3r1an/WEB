@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mod Library | BloodStrike H@ck Library</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../styles/neumorphic.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../supabase-config.js" defer></script>
+    <script src="../app.js" defer></script>
+    <style>
+        .filter-section {
+            transition: all 0.3s ease;
+        }
+        
+        .filter-section.collapsed {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+        }
+        
+        .filter-toggle {
+            transition: transform 0.3s ease;
+        }
+        
+        .filter-toggle.collapsed {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navbar (same as index.html) -->
+    <nav class="neu-navbar">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="neu-logo">
+                        <i class="fas fa-bolt text-blue-500"></i>
+                    </div>
+                    <a href="../index.html" class="text-2xl font-bold neu-text-primary">BloodStrike<span class="neu-text-accent">Mods</span></a>
+                </div>
+                
+                <div class="hidden md:flex space-x-6">
+                    <a href="../index.html" class="neu-nav-link"><i class="fas fa-home mr-2"></i>Home</a>
+                    <a href="library.html" class="neu-nav-link active"><i class="fas fa-box-archive mr-2"></i>Library</a>
+                    <a href="contact.html" class="neu-nav-link"><i class="fas fa-envelope mr-2"></i>Contact</a>
+                    <a href="#" class="neu-nav-link"><i class="fas fa-question-circle mr-2"></i>FAQ</a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button id="themeToggle" class="neu-btn-icon">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div id="authButtons" class="hidden">
+                        <a href="login.html" class="neu-btn-sm mr-2">Login</a>
+                        <a href="login.html?action=signup" class="neu-btn-sm neu-btn-primary">Sign Up</a>
+                    </div>
+                    <div id="userMenu" class="hidden">
+                        <div class="relative">
+                            <button id="userDropdownBtn" class="neu-btn-icon">
+                                <i class="fas fa-user"></i>
+                            </button>
+                            <div id="userDropdown" class="neu-dropdown hidden absolute right-0 mt-2">
+                                <a href="#" class="neu-dropdown-item"><i class="fas fa-heart mr-2"></i>Favorites</a>
+                                <a href="#" class="neu-dropdown-item"><i class="fas fa-history mr-2"></i>History</a>
+                                <a href="upload.html" class="neu-dropdown-item"><i class="fas fa-upload mr-2"></i>Upload</a>
+                                <hr class="my-2">
+                                <a href="#" id="logoutBtn" class="neu-dropdown-item text-red-500"><i class="fas fa-sign-out mr-2"></i>Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="mobileMenuBtn" class="neu-btn-icon md:hidden">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="neu-card mt-3 hidden md:hidden">
+                <a href="../index.html" class="neu-nav-link-mobile"><i class="fas fa-home mr-2"></i>Home</a>
+                <a href="library.html" class="neu-nav-link-mobile active"><i class="fas fa-box-archive mr-2"></i>Library</a>
+                <a href="contact.html" class="neu-nav-link-mobile"><i class="fas fa-envelope mr-2"></i>Contact</a>
+                <a href="#" class="neu-nav-link-mobile"><i class="fas fa-question-circle mr-2"></i>FAQ</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="mb-8">
+            <h1 class="neu-section-title">H@ck Library</h1>
+            <p class="neu-text-light">Browse our collection of premium BloodStrike mods and enhancements</p>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="neu-card mb-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <!-- Search -->
+                <div class="flex-1">
+                    <div class="relative">
+                        <div class="neu-input-wrapper">
+                            <input type="text" 
+                                   id="searchInput" 
+                                   class="neu-input pl-10" 
+                                   placeholder="Search mods by name, description, or author...">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 neu-text-light"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Toggle -->
+                <button id="filterToggle" class="neu-btn flex items-center gap-2">
+                    <i class="fas fa-filter"></i>
+                    Filters
+                    <i class="fas fa-chevron-down filter-toggle"></i>
+                </button>
+
+                <!-- Sort -->
+                <div>
+                    <select id="sortSelect" class="neu-select">
+                        <option value="newest">Newest First</option>
+                        <option value="popular">Most Popular</option>
+                        <option value="downloads">Most Downloads</option>
+                        <option value="rating">Highest Rated</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Filters Section -->
+            <div id="filterSection" class="filter-section collapsed mt-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Type Filter -->
+                    <div>
+                        <label class="neu-text-primary font-semibold mb-2 block">Mod Type</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" name="type" value="Aimbot" class="neu-checkbox mr-2">
+                                <span>Aimbot</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="type" value="Wallhack" class="neu-checkbox mr-2">
+                                <span>Wallhack</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="type" value="ESP" class="neu-checkbox mr-2">
+                                <span>ESP</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="type" value="Speed" class="neu-checkbox mr-2">
+                                <span>Speed</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="type" value="Other" class="neu-checkbox mr-2">
+                                <span>Other</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- CPU Architecture Filter -->
+                    <div>
+                        <label class="neu-text-primary font-semibold mb-2 block">CPU Architecture</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="radio" name="cpu" value="All" checked class="neu-radio mr-2">
+                                <span>All</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="cpu" value="x64" class="neu-radio mr-2">
+                                <span>x64</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="cpu" value="x86" class="neu-radio mr-2">
+                                <span>x86</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="cpu" value="ARM" class="neu-radio mr-2">
+                                <span>ARM</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Rating Filter -->
+                    <div>
+                        <label class="neu-text-primary font-semibold mb-2 block">Minimum Rating</label>
+                        <div class="neu-rating-large mb-4" id="ratingFilter">
+                            <i class="fas fa-star neu-star-large" data-rating="1"></i>
+                            <i class="fas fa-star neu-star-large" data-rating="2"></i>
+                            <i class="fas fa-star neu-star-large" data-rating="3"></i>
+                            <i class="fas fa-star neu-star-large" data-rating="4"></i>
+                            <i class="fas fa-star neu-star-large" data-rating="5"></i>
+                        </div>
+                        <div class="flex gap-2">
+                            <button id="applyFilters" class="neu-btn-sm neu-btn-primary flex-1">Apply Filters</button>
+                            <button id="clearFilters" class="neu-btn-sm neu-btn-secondary">Clear</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mods Grid -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="neu-text-primary text-xl font-semibold">
+                    <span id="modCount">0</span> Mods Found
+                </h2>
+                <div class="flex items-center gap-4">
+                    <span class="neu-text-light text-sm">View:</span>
+                    <div class="flex">
+                        <button id="viewGrid" class="neu-btn-icon rounded-r-none border-r-0 active">
+                            <i class="fas fa-th-large"></i>
+                        </button>
+                        <button id="viewList" class="neu-btn-icon rounded-l-none">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="modsGrid" class="neu-cards-grid">
+                <!-- Mods will be loaded here -->
+                <div class="neu-skeleton-card"></div>
+                <div class="neu-skeleton-card"></div>
+                <div class="neu-skeleton-card"></div>
+                <div class="neu-skeleton-card"></div>
+                <div class="neu-skeleton-card"></div>
+                <div class="neu-skeleton-card"></div>
+            </div>
+
+            <!-- Pagination -->
+            <div id="pagination" class="flex justify-center mt-8 hidden">
+                <nav class="flex items-center space-x-2">
+                    <button class="neu-btn-icon">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="neu-btn-icon active">1</button>
+                    <button class="neu-btn-icon">2</button>
+                    <button class="neu-btn-icon">3</button>
+                    <span class="neu-text-light">...</span>
+                    <button class="neu-btn-icon">10</button>
+                    <button class="neu-btn-icon">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-12 hidden">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+            <p class="neu-text-light">Loading mods...</p>
+        </div>
+
+        <!-- No Results -->
+        <div id="noResults" class="text-center py-12 hidden">
+            <div class="neu-card-inner py-8">
+                <i class="fas fa-search text-4xl neu-text-accent mb-4"></i>
+                <h3 class="text-xl font-semibold neu-text-primary mb-2">No mods found</h3>
+                <p class="neu-text-light mb-4">Try adjusting your search or filters</p>
+                <button id="resetAllFilters" class="neu-btn neu-btn-primary">Reset All Filters</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer (same as index.html) -->
+    <footer class="neu-footer">
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <div class="neu-logo">
+                            <i class="fas fa-bolt text-blue-500"></i>
+                        </div>
+                        <span class="text-xl font-bold neu-text-primary">BloodStrike<span class="neu-text-accent">Mods</span></span>
+                    </div>
+                    <p class="neu-text-gray mt-2">Premium mods for the ultimate gaming experience</p>
+                </div>
+                
+                <div class="flex space-x-6">
+                    <a href="#" class="neu-social-icon">
+                        <i class="fab fa-discord"></i>
+                    </a>
+                    <a href="#" class="neu-social-icon">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="neu-social-icon">
+                        <i class="fab fa-reddit"></i>
+                    </a>
+                    <a href="#" class="neu-social-icon">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <hr class="my-6 border-gray-700">
+            
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <p class="neu-text-gray text-sm">© 2024 BloodStrike H@ck Library. All rights reserved.</p>
+                <div class="flex space-x-4 mt-4 md:mt-0">
+                    <a href="#" class="neu-footer-link">Terms of Service</a>
+                    <a href="#" class="neu-footer-link">Privacy Policy</a>
+                    <a href="contact.html" class="neu-footer-link">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
+
+    <script>
+        // Library-specific JavaScript
+        class LibraryPage {
+            constructor() {
+                this.mods = [];
+                this.filteredMods = [];
+                this.currentPage = 1;
+                this.itemsPerPage = 12;
+                this.filters = {
+                    search: '',
+                    types: [],
+                    cpu: 'All',
+                    minRating: 0,
+                    sortBy: 'newest'
+                };
+                
+                this.init();
+            }
+            
+            async init() {
+                await this.loadMods();
+                this.initEventListeners();
+                this.initFilters();
+            }
+            
+            async loadMods() {
+                try {
+                    // Show loading state
+                    this.showLoading(true);
+                    
+                    // Fetch mods from Supabase
+                    const { data: mods, error } = await supabaseClient
+                        .from('mods')
+                        .select('*')
+                        .eq('approved', true)
+                        .order('created_at', { ascending: false });
+                    
+                    if (error) throw error;
+                    
+                    this.mods = mods || [];
+                    this.filteredMods = [...this.mods];
+                    
+                    this.applyFilters();
+                    this.renderMods();
+                    this.updateModCount();
+                    
+                } catch (error) {
+                    console.error('Error loading mods:', error);
+                    app.showToast('Error loading mods', 'error');
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+            
+            initEventListeners() {
+                // Search input
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput) {
+                    let searchTimeout;
+                    searchInput.addEventListener('input', (e) => {
+                        clearTimeout(searchTimeout);
+                        searchTimeout = setTimeout(() => {
+                            this.filters.search = e.target.value;
+                            this.applyFilters();
+                            this.renderMods();
+                            this.updateModCount();
+                        }, 300);
+                    });
+                }
+                
+                // Filter toggle
+                const filterToggle = document.getElementById('filterToggle');
+                const filterSection = document.getElementById('filterSection');
+                if (filterToggle && filterSection) {
+                    filterToggle.addEventListener('click', () => {
+                        filterSection.classList.toggle('collapsed');
+                        filterToggle.querySelector('.filter-toggle').classList.toggle('collapsed');
+                    });
+                }
+                
+                // Type filters
+                document.querySelectorAll('input[name="type"]').forEach(checkbox => {
+                    checkbox.addEventListener('change', () => {
+                        this.updateTypeFilters();
+                    });
+                });
+                
+                // CPU filters
+                document.querySelectorAll('input[name="cpu"]').forEach(radio => {
+                    radio.addEventListener('change', (e) => {
+                        this.filters.cpu = e.target.value;
+                        this.applyFilters();
+                        this.renderMods();
+                        this.updateModCount();
+                    });
+                });
+                
+                // Rating filter
+                const ratingStars = document.querySelectorAll('#ratingFilter .neu-star-large');
+                ratingStars.forEach(star => {
+                    star.addEventListener('click', (e) => {
+                        const rating = parseInt(e.target.dataset.rating);
+                        this.setRatingFilter(rating);
+                    });
+                });
+                
+                // Apply filters button
+                const applyFiltersBtn = document.getElementById('applyFilters');
+                if (applyFiltersBtn) {
+                    applyFiltersBtn.addEventListener('click', () => {
+                        this.applyFilters();
+                        this.renderMods();
+                        this.updateModCount();
+                        filterSection.classList.add('collapsed');
+                        filterToggle.querySelector('.filter-toggle').classList.remove('collapsed');
+                    });
+                }
+                
+                // Clear filters button
+                const clearFiltersBtn = document.getElementById('clearFilters');
+                if (clearFiltersBtn) {
+                    clearFiltersBtn.addEventListener('click', () => {
+                        this.clearFilters();
+                    });
+                }
+                
+                // Reset all filters button
+                const resetAllBtn = document.getElementById('resetAllFilters');
+                if (resetAllBtn) {
+                    resetAllBtn.addEventListener('click', () => {
+                        this.clearFilters();
+                    });
+                }
+                
+                // Sort select
+                const sortSelect = document.getElementById('sortSelect');
+                if (sortSelect) {
+                    sortSelect.addEventListener('change', (e) => {
+                        this.filters.sortBy = e.target.value;
+                        this.applyFilters();
+                        this.renderMods();
+                    });
+                }
+                
+                // View toggle
+                const viewGridBtn = document.getElementById('viewGrid');
+                const viewListBtn = document.getElementById('viewList');
+                const modsGrid = document.getElementById('modsGrid');
+                
+                if (viewGridBtn && viewListBtn && modsGrid) {
+                    viewGridBtn.addEventListener('click', () => {
+                        viewGridBtn.classList.add('active');
+                        viewListBtn.classList.remove('active');
+                        modsGrid.classList.remove('list-view');
+                        modsGrid.classList.add('neu-cards-grid');
+                    });
+                    
+                    viewListBtn.addEventListener('click', () => {
+                        viewListBtn.classList.add('active');
+                        viewGridBtn.classList.remove('active');
+                        modsGrid.classList.remove('neu-cards-grid');
+                        modsGrid.classList.add('list-view');
+                    });
+                }
+            }
+            
+            initFilters() {
+                // Initialize rating stars
+                this.updateRatingDisplay();
+            }
+            
+            updateTypeFilters() {
+                const checkboxes = document.querySelectorAll('input[name="type"]:checked');
+                this.filters.types = Array.from(checkboxes).map(cb => cb.value);
+            }
+            
+            setRatingFilter(rating) {
+                this.filters.minRating = rating;
+                this.updateRatingDisplay();
+            }
+            
+            updateRatingDisplay() {
+                const stars = document.querySelectorAll('#ratingFilter .neu-star-large');
+                stars.forEach((star, index) => {
+                    const starRating = index + 1;
+                    if (starRating <= this.filters.minRating) {
+                        star.classList.add('active');
+                    } else {
+                        star.classList.remove('active');
+                    }
+                });
+            }
+            
+            applyFilters() {
+                this.filteredMods = this.mods.filter(mod => {
+                    // Search filter
+                    if (this.filters.search) {
+                        const searchTerm = this.filters.search.toLowerCase();
+                        const matchesSearch = 
+                            mod.title.toLowerCase().includes(searchTerm) ||
+                            mod.description.toLowerCase().includes(searchTerm) ||
+                            mod.owner.toLowerCase().includes(searchTerm);
+                        if (!matchesSearch) return false;
+                    }
+                    
+                    // Type filter
+                    if (this.filters.types.length > 0) {
+                        const modTypes = mod.type || [];
+                        const hasMatchingType = this.filters.types.some(type => 
+                            modTypes.includes(type)
+                        );
+                        if (!hasMatchingType) return false;
+                    }
+                    
+                    // CPU filter
+                    if (this.filters.cpu !== 'All' && mod.cpu_arch !== this.filters.cpu) {
+                        return false;
+                    }
+                    
+                    // Rating filter
+                    if (mod.rating < this.filters.minRating) {
+                        return false;
+                    }
+                    
+                    return true;
+                });
+                
+                // Apply sorting
+                this.sortMods();
+            }
+            
+            sortMods() {
+                switch (this.filters.sortBy) {
+                    case 'newest':
+                        this.filteredMods.sort((a, b) => 
+                            new Date(b.created_at) - new Date(a.created_at)
+                        );
+                        break;
+                    case 'popular':
+                        this.filteredMods.sort((a, b) => 
+                            (b.download_count || 0) - (a.download_count || 0)
+                        );
+                        break;
+                    case 'downloads':
+                        this.filteredMods.sort((a, b) => 
+                            (b.download_count || 0) - (a.download_count || 0)
+                        );
+                        break;
+                    case 'rating':
+                        this.filteredMods.sort((a, b) => 
+                            (b.rating || 0) - (a.rating || 0)
+                        );
+                        break;
+                }
+            }
+            
+            clearFilters() {
+                // Reset search
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput) searchInput.value = '';
+                this.filters.search = '';
+                
+                // Reset type filters
+                document.querySelectorAll('input[name="type"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                this.filters.types = [];
+                
+                // Reset CPU filter
+                document.querySelectorAll('input[name="cpu"]').forEach(radio => {
+                    radio.checked = radio.value === 'All';
+                });
+                this.filters.cpu = 'All';
+                
+                // Reset rating filter
+                this.filters.minRating = 0;
+                this.updateRatingDisplay();
+                
+                // Reset sort
+                const sortSelect = document.getElementById('sortSelect');
+                if (sortSelect) sortSelect.value = 'newest';
+                this.filters.sortBy = 'newest';
+                
+                // Apply filters and re-render
+                this.applyFilters();
+                this.renderMods();
+                this.updateModCount();
+                
+                // Collapse filter section
+                const filterSection = document.getElementById('filterSection');
+                const filterToggle = document.getElementById('filterToggle');
+                if (filterSection && filterToggle) {
+                    filterSection.classList.add('collapsed');
+                    filterToggle.querySelector('.filter-toggle').classList.remove('collapsed');
+                }
+            }
+            
+            renderMods() {
+                const container = document.getElementById('modsGrid');
+                if (!container) return;
+                
+                // Clear container
+                container.innerHTML = '';
+                
+                if (this.filteredMods.length === 0) {
+                    this.showNoResults(true);
+                    return;
+                }
+                
+                this.showNoResults(false);
+                
+                // Render mod cards
+                const modsToShow = this.filteredMods.slice(
+                    (this.currentPage - 1) * this.itemsPerPage,
+                    this.currentPage * this.itemsPerPage
+                );
+                
+                modsToShow.forEach(mod => {
+                    const card = app.createModCard(mod);
+                    container.appendChild(card);
+                });
+                
+                // Show/hide pagination
+                this.updatePagination();
+            }
+            
+            updateModCount() {
+                const modCountElement = document.getElementById('modCount');
+                if (modCountElement) {
+                    modCountElement.textContent = this.filteredMods.length;
+                }
+            }
+            
+            updatePagination() {
+                const paginationElement = document.getElementById('pagination');
+                if (!paginationElement) return;
+                
+                const totalPages = Math.ceil(this.filteredMods.length / this.itemsPerPage);
+                
+                if (totalPages > 1) {
+                    paginationElement.classList.remove('hidden');
+                    // Update pagination buttons here
+                } else {
+                    paginationElement.classList.add('hidden');
+                }
+            }
+            
+            showLoading(show) {
+                const loadingElement = document.getElementById('loadingState');
+                const modsGrid = document.getElementById('modsGrid');
+                
+                if (loadingElement) {
+                    loadingElement.classList.toggle('hidden', !show);
+                }
+                if (modsGrid) {
+                    modsGrid.classList.toggle('hidden', show);
+                }
+            }
+            
+            showNoResults(show) {
+                const noResultsElement = document.getElementById('noResults');
+                const modsGrid = document.getElementById('modsGrid');
+                const paginationElement = document.getElementById('pagination');
+                
+                if (noResultsElement) {
+                    noResultsElement.classList.toggle('hidden', !show);
+                }
+                if (modsGrid) {
+                    modsGrid.classList.toggle('hidden', show);
+                }
+                if (paginationElement && show) {
+                    paginationElement.classList.add('hidden');
+                }
+            }
+        }
+        
+        // Initialize library page
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize main app first
+            if (!window.app) {
+                window.app = new BloodStrikeApp();
+            }
+            
+            // Initialize library page
+            window.libraryPage = new LibraryPage();
+        });
+    </script>
+</body>
+</html>

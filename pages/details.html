@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mod Details | BloodStrike H@ck Library</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../styles/neumorphic.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="../supabase-config.js" defer></script>
+    <script src="../app.js" defer></script>
+    <style>
+        .mod-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .mod-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 12px;
+            background: var(--neu-bg);
+            box-shadow: 4px 4px 8px var(--neu-dark),
+                        -4px -4px 8px var(--neu-light);
+        }
+        
+        .mod-meta-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--neu-bg);
+            box-shadow: inset 2px 2px 4px var(--neu-dark),
+                        inset -2px -2px 4px var(--neu-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--neu-primary);
+        }
+        
+        .mod-screenshots {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .mod-screenshot {
+            width: 100%;
+            height: 150px;
+            border-radius: 12px;
+            background: var(--neu-bg);
+            box-shadow: inset 4px 4px 8px var(--neu-dark),
+                        inset -4px -4px 8px var(--neu-light);
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        .mod-screenshot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .mod-screenshot:hover img {
+            transform: scale(1.05);
+        }
+        
+        .comments-section {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .comment {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 12px;
+            background: var(--neu-bg);
+            box-shadow: 4px 4px 8px var(--neu-dark),
+                        -4px -4px 8px var(--neu-light);
+        }
+        
+        .comment-reply {
+            margin-left: 2rem;
+            margin-top: 0.5rem;
+        }
+        
+        .guide-content {
+            padding: 1.5rem;
+            border-radius: 12px;
+            background: var(--neu-bg);
+            box-shadow: inset 4px 4px 8px var(--neu-dark),
+                        inset -4px -4px 8px var(--neu-light);
+            line-height: 1.6;
+        }
+        
+        .guide-content h1,
+        .guide-content h2,
+        .guide-content h3,
+        .guide-content h4 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--neu-text);
+        }
+        
+        .guide-content p {
+            margin-bottom: 1rem;
+        }
+        
+        .guide-content code {
+            background: var(--neu-dark);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        .guide-content pre {
+            background: var(--neu-dark);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+        
+        .guide-content ul,
+        .guide-content ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .guide-content li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navbar (same as index.html) -->
+    <nav class="neu-navbar">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="neu-logo">
+                        <i class="fas fa-bolt text-blue-500"></i>
+                    </div>
+                    <a href="../index.html" class="text-2xl font-bold neu-text-primary">BloodStrike<span class="neu-text-accent">Mods</span></a>
+                </div>
+                
+                <div class="hidden md:flex space-x-6">
+                    <a href="../index.html" class="neu-nav-link"><i class="fas fa-home mr-2"></i>Home</a>
+                    <a href="library.html" class="neu-nav-link"><i class="fas fa-box-archive mr-2"></i>Library</a>
+                    <a href="contact.html" class="neu-nav-link"><i class="fas fa-envelope mr-2"></i>Contact</a>
+                    <a href="#" class="neu-nav-link"><i class="fas fa-question-circle mr-2"></i>FAQ</a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button id="themeToggle" class="neu-btn-icon">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div id="authButtons" class="hidden">
+                        <a href="login.html" class="neu-btn-sm mr-2">Login</a>
+                        <a href="login.html?action=signup" class="neu-btn-sm neu-btn-primary">Sign Up</a>
+                    </div>
+                    <div id="userMenu" class="hidden">
+                        <div class="relative">
+                            <button id="userDropdownBtn" class="neu-btn-icon">
+                                <i class="fas fa-user"></i>
+                            </button>
+                            <div id="userDropdown" class="neu-dropdown hidden absolute right-0 mt-2">
+                                <a href="#" class="neu-dropdown-item"><i class="fas fa-heart mr-2"></i>Favorites</a>
+                                <a href="#" class="neu-dropdown-item"><i class="fas fa-history mr-2"></i>History</a>
+                                <a href="upload.html" class="neu-dropdown-item"><i class="fas fa-upload mr-2"></i>Upload</a>
+                                <hr class="my-2">
+                                <a href="#" id="logoutBtn" class="neu-dropdown-item text-red-500"><i class="fas fa-sign-out mr-2"></i>Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="mobileMenuBtn" class="neu-btn-icon md:hidden">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="neu-card mt-3 hidden md:hidden">
+                <a href="../index.html" class="neu-nav-link-mobile"><i class="fas fa-home mr-2"></i>Home</a>
+                <a href="library.html" class="neu-nav-link-mobile"><i class="fas fa-box-archive mr-2"></i>Library</a>
+                <a href="contact.html" class="neu-nav-link-mobile"><i class="fas fa-envelope mr-2"></i>Contact</a>
+                <a href="#" class="neu-nav-link-mobile"><i class="fas fa-question-circle mr-2"></i>FAQ</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Back Button -->
+        <div class="mb-6">
+            <a href="library.html" class="neu-btn">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Library
+            </a>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+            <p class="neu-text-light">Loading mod details...</p>
+        </div>
+
+        <!-- Mod Details -->
+        <div id="modDetails" class="hidden">
+            <!-- Header Section -->
+            <div class="neu-card mb-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <h1 id="modTitle" class="text-3xl font-bold neu-text-primary"></h1>
+                            <span id="modBadge" class="neu-mod-card-badge"></span>
+                        </div>
+                        <p id="modDescription" class="neu-text-light"></p>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <button id="favoriteBtn" class="neu-btn-icon">
+                            <i class="far fa-heart"></i>
+                        </button>
+                        <button id="downloadBtn" class="neu-btn neu-btn-primary">
+                            <i class="fas fa-download mr-2"></i> Download
+                        </button>
+                        <div class="relative">
+                            <button id="shareBtn" class="neu-btn-icon">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                            <div id="shareDropdown" class="neu-dropdown hidden absolute right-0 mt-2 z-10">
+                                <button class="neu-dropdown-item share-option" data-platform="copy">
+                                    <i class="fas fa-link mr-2"></i> Copy Link
+                                </button>
+                                <button class="neu-dropdown-item share-option" data-platform="discord">
+                                    <i class="fab fa-discord mr-2"></i> Discord
+                                </button>
+                                <button class="neu-dropdown-item share-option" data-platform="twitter">
+                                    <i class="fab fa-twitter mr-2"></i> Twitter
+                                </button>
+                                <button class="neu-dropdown-item share-option" data-platform="reddit">
+                                    <i class="fab fa-reddit mr-2"></i> Reddit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Meta Information -->
+                <div class="mod-meta-grid mt-6">
+                    <div class="mod-meta-item">
+                        <div class="mod-meta-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm neu-text-light">Owner</div>
+                            <div id="modOwner" class="font-semibold neu-text-primary"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mod-meta-item">
+                        <div class="mod-meta-icon">
+                            <i class="fas fa-microchip"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm neu-text-light">CPU Arch</div>
+                            <div id="modCpu" class="font-semibold neu-text-primary"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mod-meta-item">
+                        <div class="mod-meta-icon">
+                            <i class="fas fa-tag"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm neu-text-light">Type</div>
+                            <div id="modType" class="font-semibold neu-text-primary"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mod-meta-item">
+                        <div class="mod-meta-icon">
+                            <i class="fas fa-download"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm neu-text-light">Downloads</div>
+                            <div id="modDownloads" class="font-semibold neu-text-primary"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mod-meta-item">
+                        <div class="mod-meta-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm neu-text-light">Rating</div>
+                            <div class="flex items-center gap-1">
+                                <div id="modRating" class="font-semibold neu-text-primary"></div>
+                                <div id="modRatingStars" class="neu-rating"></div>
+                                <span class="neu-text-light text-sm">(<span id="modRatingCount">0</span>)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mod-meta-item">
+                        <div class="mod-meta-icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm neu-text-light">Updated</div>
+                            <div id="modUpdated" class="font-semibold neu-text-primary"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left Column: Guide -->
+                <div class="lg:col-span-2">
+                    <!-- How-to Guide -->
+                    <div class="neu-card mb-6">
+                        <h2 class="text-xl font-bold neu-text-primary mb-4">
+                            <i class="fas fa-book mr-2"></i> How-to Guide
+                        </h2>
+                        <div id="modGuide" class="guide-content"></div>
+                    </div>
+
+                    <!-- Screenshots/Video -->
+                    <div class="neu-card mb-6">
+                        <h2 class="text-xl font-bold neu-text-primary mb-4">
+                            <i class="fas fa-images mr-2"></i> Media
+                        </h2>
+                        <div id="modMedia" class="mod-screenshots">
+                            <!-- Screenshots will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Actions & Info -->
+                <div>
+                    <!-- Rate This Mod -->
+                    <div class="neu-card mb-6">
+                        <h2 class="text-xl font-bold neu-text-primary mb-4">
+                            <i class="fas fa-star mr-2"></i> Rate This Mod
+                        </h2>
+                        
+                        <div id="userRatingSection" class="hidden">
+                            <div class="neu-rating-large mb-4" id="userRatingStars">
+                                <i class="far fa-star neu-star-large" data-rating="1"></i>
+                                <i class="far fa-star neu-star-large" data-rating="2"></i>
+                                <i class="far fa-star neu-star-large" data-rating="3"></i>
+                                <i class="far fa-star neu-star-large" data-rating="4"></i>
+                                <i class="far fa-star neu-star-large" data-rating="5"></i>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="neu-text-primary font-semibold mb-2 block">Your Review (Optional)</label>
+                                <textarea id="userReview" 
+                                          class="neu-input" 
+                                          rows="3" 
+                                          placeholder="Share your experience with this mod..."></textarea>
+                            </div>
+                            
+                            <button id="submitRating" class="neu-btn neu-btn-primary w-full">
+                                <i class="fas fa-paper-plane mr-2"></i> Submit Rating
+                            </button>
+                        </div>
+                        
+                        <div id="loginToRate" class="hidden">
+                            <p class="neu-text-light mb-4">Login to rate and review this mod</p>
+                            <a href="login.html" class="neu-btn neu-btn-primary w-full">
+                                <i class="fas fa-sign-in-alt mr-2"></i> Login Now
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Author Info -->
+                    <div class="neu-card mb-6">
+                        <h2 class="text-xl font-bold neu-text-primary mb-4">
+                            <i class="fas fa-user-circle mr-2"></i> Author
+                        </h2>
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full neu-bg flex items-center justify-center">
+                                <i class="fas fa-user neu-text-primary"></i>
+                            </div>
+                            <div>
+                                <div id="modAuthor" class="font-semibold neu-text-primary"></div>
+                                <a id="modContact" href="#" class="neu-link text-sm">
+                                    <i class="fas fa-envelope mr-1"></i> Contact
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Version Info -->
+                    <div class="neu-card">
+                        <h2 class="text-xl font-bold neu-text-primary mb-4">
+                            <i class="fas fa-info-circle mr-2"></i> Version Info
+                        </h2>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="neu-text-light">Version:</span>
+                                <span id="modVersion" class="font-semibold neu-text-primary"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="neu-text-light">File Size:</span>
+                                <span id="modFileSize" class="font-semibold neu-text-primary">N/A</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="neu-text-light">Last Updated:</span>
+                                <span id="modLastUpdated" class="font-semibold neu-text-primary"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="neu-text-light">Compatibility:</span>
+                                <span id="modCompatibility" class="font-semibold neu-text-primary">BloodStrike</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="neu-card mt-6">
+                <h2 class="text-xl font-bold neu-text-primary mb-4">
+                    <i class="fas fa-comments mr-2"></i> Comments & Discussion
+                </h2>
+                
+                <!-- New Comment Form -->
+                <div id="newCommentForm" class="mb-6 hidden">
+                    <div class="mb-4">
+                        <label class="neu-text-primary font-semibold mb-2 block">Add Comment</label>
+                        <textarea id="commentContent" 
+                                  class="neu-input" 
+                                  rows="3" 
+                                  placeholder="Join the discussion..."></textarea>
+                    </div>
+                    <button id="submitComment" class="neu-btn neu-btn-primary">
+                        <i class="fas fa-paper-plane mr-2"></i> Post Comment
+                    </button>
+                </div>
+                
+                <div id="loginToComment" class="mb-6 hidden">
+                    <p class="neu-text-light mb-4">Login to participate in the discussion</p>
+                    <a href="login.html" class="neu-btn neu-btn-primary">
+                        <i class="fas fa-sign-in-alt mr-2"></i> Login to Comment
+                    </a>
+                </div>
+                
+                <!-- Comments List -->
+                <div id="commentsList" class="comments-section">
+                    <!-- Comments will be loaded here -->
+                    <div class="text-center py-4">
+                        <p class="neu-text-light">No comments yet. Be the first to comment!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="hidden">
+            <div class="neu-card text-center py-12">
+                <i class="fas fa-exclamation-triangle text-4xl neu-text-accent mb-4"></i>
+                <h3 class="text-xl font-semibold neu-text-primary mb-2">Mod Not Found</h3>
+                <p class="neu-text-light mb-4">The mod you're looking for doesn't exist or has been removed.</p>
+                <a href="library.html" class="neu-btn neu-btn-primary">
+                    <i class="fas fa-box-archive mr-2"></i> Browse Library
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer (same as index.html) -->
+    <footer class="neu-footer">
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <div class="neu-logo">
+                            <i class="fas fa-bolt text-blue-500"></i>
+                        </div>
+                        <span class="text-xl font-bold neu-text-primary">BloodStrike<span class="neu-text-accent">Mods</span></span>
+                    </div>
+                    <p class="neu-text-gray mt-2">Premium mods for the ultimate gaming experience</p>
+                </div>
+                
+                <div class="flex space-x-6">
+                    <a href="#" class="neu-social-icon">
+                        <i class="fab fa-discord"></i>
+                    </a>
+                    <a href="#" class="neu-social-icon">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="neu-social-icon">
+                        <i class="fab fa-reddit"></i>
+                    </a>
+                    <a href="#" class="neu-social-icon">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <hr class="my-6 border-gray-700">
+            
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <p class="neu-text-gray text-sm">© 2024 BloodStrike H@ck Library. All rights reserved.</p>
+                <div class="flex space-x-4 mt-4 md:mt-0">
+                    <a href="#" class="neu-footer-link">Terms of Service</a>
+                    <a href="#" class="neu-footer-link">Privacy Policy</a>
+                    <a href="contact.html" class="neu-footer-link">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
+
+    <!-- Image Viewer Modal -->
+    <div id="imageViewerModal" class="neu-modal">
+        <div class="neu-modal-content">
+            <div class="neu-modal-header">
+                <h3 class="text-lg font-semibold neu-text-primary">Screenshot</h3>
+                <button class="neu-modal-close" id="closeImageViewer">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-4">
+                <img id="modalImage" src="" alt="" class="w-full h-auto rounded-lg">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class DetailsPage {
+            constructor() {
+                this.modId = this.getModIdFromUrl();
+                this.mod = null;
+                this.comments = [];
+                this.userRating = null;
+                this.isFavorite = false;
+                
+                if (this.modId) {
+                    this.init();
+                } else {
+                    this.showError();
+                }
+            }
+            
+            getModIdFromUrl() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('id');
+            }
+            
+            async init() {
+                await this.loadMod();
+                await this.loadComments();
+                await this.checkUserRating();
+                await this.checkFavorite();
+                this.initEventListeners();
+            }
+            
+            async loadMod() {
+                try {
+                    const { data: mod, error } = await supabaseClient
+                        .from('mods')
+                        .select('*')
+                        .eq('id', this.modId)
+                        .single();
+                    
+                    if (error) throw error;
+                    
+                    this.mod = mod;
+                    this.renderMod();
+                    this.hideLoading();
+                    
+                } catch (error) {
+                    console.error('Error loading mod:', error);
+                    this.showError();
+                }
+            }
+            
+            renderMod() {
+                if (!this.mod) return;
+                
+                // Update page title
+                document.title = `${this.mod.title} | BloodStrike H@ck Library`;
+                
+                // Basic info
+                document.getElementById('modTitle').textContent = this.mod.title;
+                document.getElementById('modDescription').textContent = this.mod.description || 'No description available.';
+                
+                // Badge
+                const badge = document.getElementById('modBadge');
+                const type = this.mod.type && this.mod.type.length > 0 ? this.mod.type[0] : 'Mod';
+                badge.textContent = type;
+                
+                // Meta info
+                document.getElementById('modOwner').textContent = this.mod.owner || 'Unknown';
+                document.getElementById('modCpu').textContent = this.mod.cpu_arch || 'All';
+                document.getElementById('modType').textContent = this.mod.type ? this.mod.type.join(', ') : 'Unknown';
+                document.getElementById('modDownloads').textContent = this.mod.download_count || 0;
+                document.getElementById('modRating').textContent = this.mod.rating ? this.mod.rating.toFixed(1) : 'N/A';
+                document.getElementById('modRatingCount').textContent = this.mod.rating_count || 0;
+                document.getElementById('modUpdated').textContent = formatDate(this.mod.updated_at || this.mod.created_at);
+                
+                // Author info
+                document.getElementById('modAuthor').textContent = this.mod.owner || 'Unknown';
+                if (this.mod.contact_link) {
+                    const contactLink = document.getElementById('modContact');
+                    contactLink.href = this.mod.contact_link;
+                }
+                
+                // Version info
+                document.getElementById('modVersion').textContent = this.mod.version || '1.0.0';
+                document.getElementById('modLastUpdated').textContent = formatDate(this.mod.updated_at || this.mod.created_at);
+                
+                // Rating stars
+                const ratingStars = document.getElementById('modRatingStars');
+                ratingStars.innerHTML = this.generateStars(this.mod.rating || 0);
+                
+                // Guide
+                const guideContainer = document.getElementById('modGuide');
+                if (this.mod.guide_markdown) {
+                    guideContainer.innerHTML = marked.parse(this.mod.guide_markdown);
+                } else {
+                    guideContainer.innerHTML = '<p class="neu-text-light">No guide available for this mod.</p>';
+                }
+                
+                // Show the mod details
+                document.getElementById('modDetails').classList.remove('hidden');
+            }
+            
+            async loadComments() {
+                try {
+                    const { data: comments, error } = await supabaseClient
+                        .from('comments')
+                        .select('*, profiles(username, avatar_url)')
+                        .eq('mod_id', this.modId)
+                        .order('created_at', { ascending: false });
+                    
+                    if (error) throw error;
+                    
+                    this.comments = comments || [];
+                    this.renderComments();
+                    
+                } catch (error) {
+                    console.error('Error loading comments:', error);
+                }
+            }
+            
+            renderComments() {
+                const container = document.getElementById('commentsList');
+                if (!container) return;
+                
+                if (this.comments.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-4">
+                            <p class="neu-text-light">No comments yet. Be the first to comment!</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = '';
+                this.comments.forEach(comment => {
+                    const commentElement = this.createCommentElement(comment);
+                    container.appendChild(commentElement);
+                });
+            }
+            
+            createCommentElement(comment) {
+                const div = document.createElement('div');
+                div.className = 'comment';
+                
+                const user = comment.profiles || {};
+                const date = formatDate(comment.created_at);
+                
+                div.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full neu-bg flex items-center justify-center">
+                                <i class="fas fa-user text-sm"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold neu-text-primary">${user.username || 'Anonymous'}</div>
+                                <div class="text-xs neu-text-light">${date}</div>
+                            </div>
+                        </div>
+                        ${comment.user_id === app?.currentUser?.id ? `
+                            <button class="neu-btn-icon-sm delete-comment" data-comment-id="${comment.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                    <div class="neu-text-light">${this.escapeHtml(comment.content)}</div>
+                `;
+                
+                return div;
+            }
+            
+            async checkUserRating() {
+                if (!app?.currentUser) return;
+                
+                try {
+                    const { data: rating, error } = await supabaseClient
+                        .from('ratings')
+                        .select('*')
+                        .eq('mod_id', this.modId)
+                        .eq('user_id', app.currentUser.id)
+                        .single();
+                    
+                    if (error && error.code !== 'PGRST116') throw error;
+                    
+                    this.userRating = rating || null;
+                    this.updateRatingUI();
+                    
+                } catch (error) {
+                    console.error('Error checking user rating:', error);
+                }
+            }
+            
+            updateRatingUI() {
+                const userRatingSection = document.getElementById('userRatingSection');
+                const loginToRate = document.getElementById('loginToComment');
+                
+                if (app?.currentUser) {
+                    userRatingSection.classList.remove('hidden');
+                    loginToRate.classList.add('hidden');
+                    
+                    // Set existing rating if any
+                    if (this.userRating) {
+                        this.setUserRatingStars(this.userRating.rating);
+                        document.getElementById('userReview').value = this.userRating.review || '';
+                    }
+                } else {
+                    userRatingSection.classList.add('hidden');
+                    loginToRate.classList.remove('hidden');
+                }
+            }
+            
+            setUserRatingStars(rating) {
+                const stars = document.querySelectorAll('#userRatingStars .neu-star-large');
+                stars.forEach((star, index) => {
+                    const starRating = index + 1;
+                    if (starRating <= rating) {
+                        star.classList.remove('far');
+                        star.classList.add('fas', 'active');
+                    } else {
+                        star.classList.remove('fas', 'active');
+                        star.classList.add('far');
+                    }
+                });
+            }
+            
+            async checkFavorite() {
+                if (!app?.currentUser) return;
+                
+                try {
+                    const { data: favorite, error } = await supabaseClient
+                        .from('favorites')
+                        .select('*')
+                        .eq('mod_id', this.modId)
+                        .eq('user_id', app.currentUser.id)
+                        .single();
+                    
+                    if (error && error.code !== 'PGRST116') throw error;
+                    
+                    this.isFavorite = !!favorite;
+                    this.updateFavoriteUI();
+                    
+                } catch (error) {
+                    console.error('Error checking favorite:', error);
+                }
+            }
+            
+            updateFavoriteUI() {
+                const favoriteBtn = document.getElementById('favoriteBtn');
+                if (!favoriteBtn) return;
+                
+                if (this.isFavorite) {
+                    favoriteBtn.innerHTML = '<i class="fas fa-heart text-red-500"></i>';
+                } else {
+                    favoriteBtn.innerHTML = '<i class="far fa-heart"></i>';
+                }
+            }
+            
+            initEventListeners() {
+                // Download button
+                const downloadBtn = document.getElementById('downloadBtn');
+                if (downloadBtn) {
+                    downloadBtn.addEventListener('click', () => this.handleDownload());
+                }
+                
+                // Favorite button
+                const favoriteBtn = document.getElementById('favoriteBtn');
+                if (favoriteBtn) {
+                    favoriteBtn.addEventListener('click', () => this.handleFavorite());
+                }
+                
+                // Share button
+                const shareBtn = document.getElementById('shareBtn');
+                const shareDropdown = document.getElementById('shareDropdown');
+                if (shareBtn && shareDropdown) {
+                    shareBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        shareDropdown.classList.toggle('hidden');
+                    });
+                    
+                    // Share options
+                    document.querySelectorAll('.share-option').forEach(option => {
+                        option.addEventListener('click', (e) => {
+                            const platform = e.target.closest('.share-option').dataset.platform;
+                            this.handleShare(platform);
+                            shareDropdown.classList.add('hidden');
+                        });
+                    });
+                    
+                    // Close dropdown when clicking outside
+                    document.addEventListener('click', (e) => {
+                        if (!shareDropdown.contains(e.target) && !shareBtn.contains(e.target)) {
+                            shareDropdown.classList.add('hidden');
+                        }
+                    });
+                }
+                
+                // Rating stars
+                const ratingStars = document.querySelectorAll('#userRatingStars .neu-star-large');
+                ratingStars.forEach(star => {
+                    star.addEventListener('click', (e) => {
+                        const rating = parseInt(e.target.dataset.rating);
+                        this.setUserRatingStars(rating);
+                        this.userRating = this.userRating || {};
+                        this.userRating.rating = rating;
+                    });
+                });
+                
+                // Submit rating
+                const submitRatingBtn = document.getElementById('submitRating');
+                if (submitRatingBtn) {
+                    submitRatingBtn.addEventListener('click', () => this.submitRating());
+                }
+                
+                // Submit comment
+                const submitCommentBtn = document.getElementById('submitComment');
+                if (submitCommentBtn) {
+                    submitCommentBtn.addEventListener('click', () => this.submitComment());
+                }
+                
+                // Comment form visibility
+                this.updateCommentFormVisibility();
+            }
+            
+            updateCommentFormVisibility() {
+                const newCommentForm = document.getElementById('newCommentForm');
+                const loginToComment = document.getElementById('loginToComment');
+                
+                if (app?.currentUser) {
+                    newCommentForm.classList.remove('hidden');
+                    loginToComment.classList.add('hidden');
+                } else {
+                    newCommentForm.classList.add('hidden');
+                    loginToComment.classList.remove('hidden');
+                }
+            }
+            
+            async handleDownload() {
+                if (!this.mod.download_url) {
+                    app.showToast('Download link not available', 'error');
+                    return;
+                }
+                
+                // Increment download count
+                const success = await incrementDownloadCount(this.modId);
+                
+                if (success) {
+                    // Update local mod data
+                    this.mod.download_count = (this.mod.download_count || 0) + 1;
+                    document.getElementById('modDownloads').textContent = this.mod.download_count;
+                    
+                    // Open download link
+                    window.open(this.mod.download_url, '_blank');
+                    
+                    app.showToast('Download started!', 'success');
+                } else {
+                    app.showToast('Error recording download', 'error');
+                }
+            }
+            
+            async handleFavorite() {
+                if (!app?.currentUser) {
+                    app.showToast('Please login to add favorites', 'warning');
+                    return;
+                }
+                
+                try {
+                    if (this.isFavorite) {
+                        // Remove from favorites
+                        const { error } = await supabaseClient
+                            .from('favorites')
+                            .delete()
+                            .eq('mod_id', this.modId)
+                            .eq('user_id', app.currentUser.id);
+                        
+                        if (error) throw error;
+                        
+                        this.isFavorite = false;
+                        app.showToast('Removed from favorites', 'success');
+                    } else {
+                        // Add to favorites
+                        const { error } = await supabaseClient
+                            .from('favorites')
+                            .insert({
+                                mod_id: this.modId,
+                                user_id: app.currentUser.id
+                            });
+                        
+                        if (error) throw error;
+                        
+                        this.isFavorite = true;
+                        app.showToast('Added to favorites', 'success');
+                    }
+                    
+                    this.updateFavoriteUI();
+                    
+                } catch (error) {
+                    console.error('Error updating favorite:', error);
+                    app.showToast('Error updating favorite', 'error');
+                }
+            }
+            
+            handleShare(platform) {
+                const url = window.location.href;
+                const title = this.mod.title;
+                const text = `Check out this BloodStrike mod: ${title}`;
+                
+                switch (platform) {
+                    case 'copy':
+                        navigator.clipboard.writeText(url)
+                            .then(() => app.showToast('Link copied to clipboard!', 'success'))
+                            .catch(() => app.showToast('Failed to copy link', 'error'));
+                        break;
+                        
+                    case 'discord':
+                        window.open(`https://discord.com/channels/@me?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
+                        break;
+                        
+                    case 'twitter':
+                        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+                        break;
+                        
+                    case 'reddit':
+                        window.open(`https://reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(text)}`, '_blank');
+                        break;
+                }
+            }
+            
+            async submitRating() {
+                if (!app?.currentUser) {
+                    app.showToast('Please login to rate mods', 'warning');
+                    return;
+                }
+                
+                if (!this.userRating?.rating) {
+                    app.showToast('Please select a rating', 'warning');
+                    return;
+                }
+                
+                try {
+                    const ratingData = {
+                        mod_id: this.modId,
+                        user_id: app.currentUser.id,
+                        rating: this.userRating.rating,
+                        review: document.getElementById('userReview').value || null
+                    };
+                    
+                    let result;
+                    if (this.userRating.id) {
+                        // Update existing rating
+                        result = await supabaseClient
+                            .from('ratings')
+                            .update(ratingData)
+                            .eq('id', this.userRating.id);
+                    } else {
+                        // Insert new rating
+                        result = await supabaseClient
+                            .from('ratings')
+                            .insert(ratingData);
+                    }
+                    
+                    if (result.error) throw result.error;
+                    
+                    app.showToast('Rating submitted!', 'success');
+                    
+                    // Reload mod to update average rating
+                    await this.loadMod();
+                    
+                } catch (error) {
+                    console.error('Error submitting rating:', error);
+                    app.showToast('Error submitting rating', 'error');
+                }
+            }
+            
+            async submitComment() {
+                if (!app?.currentUser) {
+                    app.showToast('Please login to comment', 'warning');
+                    return;
+                }
+                
+                const content = document.getElementById('commentContent').value.trim();
+                if (!content) {
+                    app.showToast('Please enter a comment', 'warning');
+                    return;
+                }
+                
+                try {
+                    const { error } = await supabaseClient
+                        .from('comments')
+                        .insert({
+                            mod_id: this.modId,
+                            user_id: app.currentUser.id,
+                            content: content
+                        });
+                    
+                    if (error) throw error;
+                    
+                    // Clear form
+                    document.getElementById('commentContent').value = '';
+                    
+                    app.showToast('Comment posted!', 'success');
+                    
+                    // Reload comments
+                    await this.loadComments();
+                    
+                } catch (error) {
+                    console.error('Error posting comment:', error);
+                    app.showToast('Error posting comment', 'error');
+                }
+            }
+            
+            generateStars(rating) {
+                return app.generateStars(rating);
+            }
+            
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            hideLoading() {
+                document.getElementById('loadingState').classList.add('hidden');
+            }
+            
+            showError() {
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('errorState').classList.remove('hidden');
+            }
+        }
+        
+        // Initialize details page
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialize main app first
+            if (!window.app) {
+                window.app = new BloodStrikeApp();
+            }
+            
+            // Initialize details page
+            window.detailsPage = new DetailsPage();
+        });
+    </script>
+</body>
+</html>

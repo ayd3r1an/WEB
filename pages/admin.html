@@ -1,0 +1,2006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | BloodStrike H@ck Library</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="../styles/neumorphic.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="../supabase-config.js" defer></script>
+    <script src="../app.js" defer></script>
+    <style>
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .stat-card {
+            padding: 1.5rem;
+            border-radius: 16px;
+            background: var(--neu-bg);
+            box-shadow: 8px 8px 16px var(--neu-dark),
+                        -8px -8px 16px var(--neu-light);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--neu-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--neu-text-light);
+            margin-bottom: 1rem;
+        }
+        
+        .stat-change {
+            font-size: 0.875rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .stat-change.positive {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+        
+        .stat-change.negative {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+        
+        .admin-table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            background: var(--neu-bg);
+            box-shadow: 8px 8px 16px var(--neu-dark),
+                        -8px -8px 16px var(--neu-light);
+        }
+        
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .admin-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--neu-text);
+            border-bottom: 2px solid var(--neu-dark);
+            background: var(--neu-light);
+        }
+        
+        .admin-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--neu-dark);
+            color: var(--neu-text);
+        }
+        
+        .admin-table tr:hover {
+            background: var(--neu-light);
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+        
+        .status-approved {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+        
+        .status-rejected {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+        
+        .tab-container {
+            display: flex;
+            border-radius: 12px;
+            background: var(--neu-bg);
+            box-shadow: inset 4px 4px 8px var(--neu-dark),
+                        inset -4px -4px 8px var(--neu-light);
+            padding: 0.5rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+        }
+        
+        .tab {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            color: var(--neu-text);
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            background: var(--neu-bg);
+            box-shadow: 4px 4px 8px var(--neu-dark),
+                        -4px -4px 8px var(--neu-light);
+            color: var(--neu-primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .date-range-picker {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .date-input {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 12px;
+            background: var(--neu-bg);
+            box-shadow: inset 4px 4px 8px var(--neu-dark),
+                        inset -4px -4px 8px var(--neu-light);
+            border: none;
+            color: var(--neu-text);
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin-bottom: 2rem;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .page-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--neu-bg);
+            box-shadow: 4px 4px 8px var(--neu-dark),
+                        -4px -4px 8px var(--neu-light);
+            border: none;
+            color: var(--neu-text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .page-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 12px var(--neu-dark),
+                        -6px -6px 12px var(--neu-light);
+        }
+        
+        .page-btn.active {
+            background: var(--neu-primary);
+            color: white;
+            box-shadow: 4px 4px 8px rgba(86, 133, 255, 0.3),
+                        -4px -4px 8px rgba(255, 255, 255, 0.1);
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .action-btn {
+            padding: 1rem;
+            border-radius: 12px;
+            background: var(--neu-bg);
+            box-shadow: 8px 8px 16px var(--neu-dark),
+                        -8px -8px 16px var(--neu-light);
+            border: none;
+            color: var(--neu-text);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 12px 12px 24px var(--neu-dark),
+                        -12px -12px 24px var(--neu-light);
+        }
+        
+        .action-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--neu-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            background: var(--neu-bg);
+            border-radius: 20px;
+            box-shadow: 16px 16px 32px var(--neu-dark),
+                        -16px -16px 32px var(--neu-light);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--neu-dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--neu-dark);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Admin Login Screen -->
+    <div id="adminLogin" class="min-h-screen flex items-center justify-center px-4">
+        <div class="neu-card max-w-md w-full">
+            <div class="text-center mb-6">
+                <div class="neu-logo mx-auto mb-4">
+                    <i class="fas fa-lock text-blue-500"></i>
+                </div>
+                <h1 class="text-2xl font-bold neu-text-primary">Admin Dashboard</h1>
+                <p class="neu-text-light mt-2">Enter admin credentials to continue</p>
+            </div>
+            
+            <form id="adminLoginForm">
+                <div class="space-y-4">
+                    <div>
+                        <label class="neu-text-primary font-semibold mb-2 block">Admin Code</label>
+                        <input type="password" 
+                               id="adminCode" 
+                               class="neu-input" 
+                               placeholder="Enter admin access code"
+                               required>
+                    </div>
+                    
+                    <button type="submit" class="neu-btn neu-btn-primary w-full">
+                        <i class="fas fa-sign-in-alt mr-2"></i> Access Dashboard
+                    </button>
+                </div>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <a href="../index.html" class="neu-link text-sm">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="hidden">
+        <!-- Navbar -->
+        <nav class="neu-navbar">
+            <div class="container mx-auto px-4 py-3">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-2">
+                        <div class="neu-logo">
+                            <i class="fas fa-shield-alt text-blue-500"></i>
+                        </div>
+                        <span class="text-2xl font-bold neu-text-primary">Admin<span class="neu-text-accent">Panel</span></span>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <button id="adminThemeToggle" class="neu-btn-icon">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <div class="relative">
+                            <button id="adminUserBtn" class="neu-btn-icon">
+                                <i class="fas fa-user-shield"></i>
+                            </button>
+                            <div id="adminUserMenu" class="neu-dropdown hidden absolute right-0 mt-2">
+                                <a href="../index.html" class="neu-dropdown-item">
+                                    <i class="fas fa-home mr-2"></i> View Site
+                                </a>
+                                <a href="upload.html" class="neu-dropdown-item">
+                                    <i class="fas fa-upload mr-2"></i> Upload Mod
+                                </a>
+                                <hr class="my-2">
+                                <button id="adminLogout" class="neu-dropdown-item text-red-500 w-full text-left">
+                                    <i class="fas fa-sign-out mr-2"></i> Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-4 py-8">
+            <!-- Dashboard Header -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+                <div>
+                    <h1 class="neu-section-title">Admin Dashboard</h1>
+                    <p class="neu-text-light">Manage mods, users, and view analytics</p>
+                </div>
+                
+                <div class="flex items-center space-x-2 mt-4 md:mt-0">
+                    <div class="text-sm neu-text-light">Last updated: <span id="lastUpdated">Just now</span></div>
+                    <button id="refreshData" class="neu-btn-icon">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="admin-grid mb-8">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalModsCount">0</div>
+                    <div class="stat-label">Total Mods</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="modsChange">0%</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-value" id="pendingModsCount">0</div>
+                    <div class="stat-label">Pending Review</div>
+                    <div class="stat-change negative">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="pendingChange">0</span> new
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-value" id="totalDownloadsCount">0</div>
+                    <div class="stat-label">Total Downloads</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="downloadsChange">0%</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-value" id="totalUsersCount">0</div>
+                    <div class="stat-label">Registered Users</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="usersChange">0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tab-container">
+                <div class="tab active" data-tab="mods">Mod Management</div>
+                <div class="tab" data-tab="analytics">Analytics</div>
+                <div class="tab" data-tab="messages">Messages</div>
+                <div class="tab" data-tab="users">Users</div>
+                <div class="tab" data-tab="settings">Settings</div>
+            </div>
+
+            <!-- Mod Management Tab -->
+            <div id="modsTab" class="tab-content active">
+                <!-- Quick Actions -->
+                <div class="quick-actions mb-6">
+                    <button class="action-btn" data-action="approve-selected">
+                        <div class="action-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <span>Approve Selected</span>
+                    </button>
+                    <button class="action-btn" data-action="reject-selected">
+                        <div class="action-icon">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        <span>Reject Selected</span>
+                    </button>
+                    <button class="action-btn" data-action="feature-selected">
+                        <div class="action-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <span>Feature Selected</span>
+                    </button>
+                    <button class="action-btn" data-action="delete-selected">
+                        <div class="action-icon">
+                            <i class="fas fa-trash"></i>
+                        </div>
+                        <span>Delete Selected</span>
+                    </button>
+                </div>
+
+                <!-- Filter Bar -->
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <select id="modsFilter" class="neu-select">
+                        <option value="all">All Mods</option>
+                        <option value="pending">Pending Review</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="featured">Featured</option>
+                    </select>
+                    
+                    <input type="text" 
+                           id="modsSearch" 
+                           class="neu-input" 
+                           placeholder="Search mods...">
+                           
+                    <button id="applyModsFilter" class="neu-btn neu-btn-primary">
+                        <i class="fas fa-filter mr-2"></i> Filter
+                    </button>
+                </div>
+
+                <!-- Mods Table -->
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 30px;">
+                                    <input type="checkbox" id="selectAllMods">
+                                </th>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Status</th>
+                                <th>Downloads</th>
+                                <th>Rating</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modsTableBody">
+                            <!-- Mods will be loaded here -->
+                            <tr>
+                                <td colspan="8" class="text-center py-8">
+                                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mb-2"></div>
+                                    <p class="neu-text-light">Loading mods...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <button class="page-btn">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                    <span class="neu-text-light mx-2">...</span>
+                    <button class="page-btn">10</button>
+                    <button class="page-btn">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div id="analyticsTab" class="tab-content">
+                <!-- Date Range Picker -->
+                <div class="date-range-picker">
+                    <input type="text" id="startDate" class="date-input" placeholder="Start Date">
+                    <span class="neu-text-light">to</span>
+                    <input type="text" id="endDate" class="date-input" placeholder="End Date">
+                    <button id="applyDateRange" class="neu-btn neu-btn-primary">
+                        Apply
+                    </button>
+                </div>
+
+                <!-- Charts Grid -->
+                <div class="admin-grid mb-8">
+                    <div class="stat-card">
+                        <div class="chart-container">
+                            <canvas id="downloadsChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="chart-container">
+                            <canvas id="modsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Mods Table -->
+                <div class="admin-table-container">
+                    <h3 class="text-lg font-semibold neu-text-primary p-4 border-b border-neu-dark">Top Mods by Downloads</h3>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Downloads</th>
+                                <th>Rating</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topModsTable">
+                            <!-- Top mods will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Messages Tab -->
+            <div id="messagesTab" class="tab-content">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-semibold neu-text-primary">Support Messages</h3>
+                    <button id="markAllRead" class="neu-btn-sm">
+                        <i class="fas fa-envelope-open mr-2"></i> Mark All Read
+                    </button>
+                </div>
+
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 30px;">
+                                    <input type="checkbox" id="selectAllMessages">
+                                </th>
+                                <th>From</th>
+                                <th>Email</th>
+                                <th>Subject</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="messagesTableBody">
+                            <!-- Messages will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="usersTab" class="tab-content">
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <input type="text" 
+                           id="usersSearch" 
+                           class="neu-input" 
+                           placeholder="Search users...">
+                           
+                    <select id="usersFilter" class="neu-select">
+                        <option value="all">All Users</option>
+                        <option value="active">Active</option>
+                        <option value="banned">Banned</option>
+                        <option value="admins">Admins</option>
+                    </select>
+                    
+                    <button id="applyUsersFilter" class="neu-btn neu-btn-primary">
+                        <i class="fas fa-filter mr-2"></i> Filter
+                    </button>
+                </div>
+
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 30px;">
+                                    <input type="checkbox" id="selectAllUsers">
+                                </th>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Mods</th>
+                                <th>Joined</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- Users will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settingsTab" class="tab-content">
+                <div class="neu-card">
+                    <h3 class="text-lg font-semibold neu-text-primary mb-6">Admin Settings</h3>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="font-semibold neu-text-primary mb-3">General Settings</h4>
+                            <div class="space-y-4">
+                                <label class="flex items-center justify-between">
+                                    <span class="neu-text-primary">Require mod approval</span>
+                                    <input type="checkbox" id="requireApproval" class="neu-toggle" checked>
+                                </label>
+                                
+                                <label class="flex items-center justify-between">
+                                    <span class="neu-text-primary">Enable user registration</span>
+                                    <input type="checkbox" id="enableRegistration" class="neu-toggle" checked>
+                                </label>
+                                
+                                <label class="flex items-center justify-between">
+                                    <span class="neu-text-primary">Allow mod downloads</span>
+                                    <input type="checkbox" id="allowDownloads" class="neu-toggle" checked>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-semibold neu-text-primary mb-3">Email Notifications</h4>
+                            <div class="space-y-4">
+                                <label class="flex items-center justify-between">
+                                    <span class="neu-text-primary">New mod submissions</span>
+                                    <input type="checkbox" id="notifyNewMods" class="neu-toggle" checked>
+                                </label>
+                                
+                                <label class="flex items-center justify-between">
+                                    <span class="neu-text-primary">Support messages</span>
+                                    <input type="checkbox" id="notifyMessages" class="neu-toggle" checked>
+                                </label>
+                                
+                                <label class="flex items-center justify-between">
+                                    <span class="neu-text-primary">User registrations</span>
+                                    <input type="checkbox" id="notifyRegistrations" class="neu-toggle">
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-semibold neu-text-primary mb-3">Admin Access</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="neu-text-primary font-semibold mb-2 block">Admin Access Code</label>
+                                    <input type="text" 
+                                           id="adminAccessCode" 
+                                           class="neu-input" 
+                                           placeholder="Enter new access code">
+                                    <p class="neu-text-light text-xs mt-1">Change the admin access code (minimum 8 characters)</p>
+                                </div>
+                                
+                                <div>
+                                    <label class="neu-text-primary font-semibold mb-2 block">Add New Admin</label>
+                                    <input type="email" 
+                                           id="newAdminEmail" 
+                                           class="neu-input" 
+                                           placeholder="admin@example.com">
+                                    <button id="addAdminBtn" class="neu-btn-sm mt-2">
+                                        <i class="fas fa-user-plus mr-2"></i> Add Admin
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-4 border-t border-neu-dark">
+                            <button id="saveSettings" class="neu-btn neu-btn-primary">
+                                <i class="fas fa-save mr-2"></i> Save Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Mod Details Modal -->
+    <div id="modDetailsModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="text-lg font-semibold neu-text-primary">Mod Details</h3>
+                <button class="neu-btn-icon close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modDetailsContent">
+                <!-- Mod details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button class="neu-btn close-modal">Close</button>
+                <button class="neu-btn neu-btn-primary" id="approveModBtn">Approve</button>
+                <button class="neu-btn neu-btn-secondary" id="rejectModBtn">Reject</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Details Modal -->
+    <div id="messageDetailsModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="text-lg font-semibold neu-text-primary">Message Details</h3>
+                <button class="neu-btn-icon close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="messageDetailsContent">
+                <!-- Message details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button class="neu-btn close-modal">Close</button>
+                <button class="neu-btn neu-btn-primary" id="replyToMessage">Reply</button>
+                <button class="neu-btn" id="markMessageRead">Mark as Read</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
+
+    <script>
+        class AdminDashboard {
+            constructor() {
+                this.isAdmin = false;
+                this.currentTab = 'mods';
+                this.mods = [];
+                this.users = [];
+                this.messages = [];
+                this.charts = {};
+                this.selectedMods = new Set();
+                this.selectedMessages = new Set();
+                this.selectedUsers = new Set();
+                
+                this.init();
+            }
+            
+            async init() {
+                this.initEventListeners();
+                this.initDatePickers();
+                
+                // Check if already authenticated as admin
+                const adminToken = localStorage.getItem('adminToken');
+                if (adminToken === 'admin_access_granted') {
+                    this.isAdmin = true;
+                    this.showDashboard();
+                }
+            }
+            
+            initEventListeners() {
+                // Admin login
+                const loginForm = document.getElementById('adminLoginForm');
+                if (loginForm) {
+                    loginForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.handleAdminLogin();
+                    });
+                }
+                
+                // Admin logout
+                const logoutBtn = document.getElementById('adminLogout');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', () => {
+                        this.handleAdminLogout();
+                    });
+                }
+                
+                // Tab switching
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const tabId = tab.dataset.tab;
+                        this.switchTab(tabId);
+                    });
+                });
+                
+                // Refresh data
+                const refreshBtn = document.getElementById('refreshData');
+                if (refreshBtn) {
+                    refreshBtn.addEventListener('click', () => {
+                        this.loadDashboardData();
+                    });
+                }
+                
+                // Quick actions
+                document.querySelectorAll('.action-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const action = btn.dataset.action;
+                        this.handleQuickAction(action);
+                    });
+                });
+                
+                // Modal close buttons
+                document.querySelectorAll('.close-modal').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.closeModal();
+                    });
+                });
+                
+                // Mod details modal buttons
+                document.getElementById('approveModBtn')?.addEventListener('click', () => {
+                    this.approveMod();
+                });
+                
+                document.getElementById('rejectModBtn')?.addEventListener('click', () => {
+                    this.rejectMod();
+                });
+                
+                // Date range apply
+                document.getElementById('applyDateRange')?.addEventListener('click', () => {
+                    this.updateCharts();
+                });
+                
+                // Save settings
+                document.getElementById('saveSettings')?.addEventListener('click', () => {
+                    this.saveSettings();
+                });
+                
+                // Theme toggle
+                document.getElementById('adminThemeToggle')?.addEventListener('click', () => {
+                    this.toggleTheme();
+                });
+            }
+            
+            initDatePickers() {
+                const today = new Date();
+                const lastMonth = new Date();
+                lastMonth.setMonth(today.getMonth() - 1);
+                
+                flatpickr("#startDate", {
+                    defaultDate: lastMonth,
+                    dateFormat: "Y-m-d",
+                });
+                
+                flatpickr("#endDate", {
+                    defaultDate: today,
+                    dateFormat: "Y-m-d",
+                });
+            }
+            
+            handleAdminLogin() {
+                const code = document.getElementById('adminCode').value;
+                
+                // In a real app, verify against database
+                // For now, use a simple hardcoded code
+                if (code === 'admin123') {
+                    localStorage.setItem('adminToken', 'admin_access_granted');
+                    this.isAdmin = true;
+                    this.showDashboard();
+                    app.showToast('Admin access granted', 'success');
+                } else {
+                    app.showToast('Invalid admin code', 'error');
+                }
+            }
+            
+            handleAdminLogout() {
+                localStorage.removeItem('adminToken');
+                this.isAdmin = false;
+                this.hideDashboard();
+                app.showToast('Logged out from admin panel', 'success');
+            }
+            
+            showDashboard() {
+                document.getElementById('adminLogin').classList.add('hidden');
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                this.loadDashboardData();
+            }
+            
+            hideDashboard() {
+                document.getElementById('adminDashboard').classList.add('hidden');
+                document.getElementById('adminLogin').classList.remove('hidden');
+            }
+            
+            toggleTheme() {
+                const isDark = document.documentElement.classList.toggle('dark-mode');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                
+                const themeToggle = document.getElementById('adminThemeToggle');
+                if (themeToggle) {
+                    themeToggle.innerHTML = isDark ? 
+                        '<i class="fas fa-sun"></i>' : 
+                        '<i class="fas fa-moon"></i>';
+                }
+            }
+            
+            async loadDashboardData() {
+                try {
+                    // Load stats
+                    await this.loadStats();
+                    
+                    // Load data based on current tab
+                    switch (this.currentTab) {
+                        case 'mods':
+                            await this.loadMods();
+                            break;
+                        case 'analytics':
+                            await this.loadAnalytics();
+                            break;
+                        case 'messages':
+                            await this.loadMessages();
+                            break;
+                        case 'users':
+                            await this.loadUsers();
+                            break;
+                    }
+                    
+                    // Update last updated time
+                    document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+                    
+                } catch (error) {
+                    console.error('Error loading dashboard data:', error);
+                    app.showToast('Error loading data', 'error');
+                }
+            }
+            
+            async loadStats() {
+                try {
+                    // Get total mods count
+                    const { count: totalMods, error: modsError } = await supabaseClient
+                        .from('mods')
+                        .select('*', { count: 'exact', head: true });
+                    
+                    if (modsError) throw modsError;
+                    
+                    // Get pending mods count
+                    const { count: pendingMods, error: pendingError } = await supabaseClient
+                        .from('mods')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('approved', false);
+                    
+                    if (pendingError) throw pendingError;
+                    
+                    // Get total downloads
+                    const { data: downloadsData, error: downloadsError } = await supabaseClient
+                        .from('mods')
+                        .select('download_count');
+                    
+                    if (downloadsError) throw downloadsError;
+                    
+                    const totalDownloads = downloadsData.reduce((sum, mod) => sum + (mod.download_count || 0), 0);
+                    
+                    // Get total users (from auth)
+                    const { data: { users }, error: usersError } = await supabaseClient.auth.admin.listUsers();
+                    
+                    if (usersError) throw usersError;
+                    
+                    // Update UI
+                    document.getElementById('totalModsCount').textContent = totalMods || 0;
+                    document.getElementById('pendingModsCount').textContent = pendingMods || 0;
+                    document.getElementById('totalDownloadsCount').textContent = totalDownloads.toLocaleString();
+                    document.getElementById('totalUsersCount').textContent = users?.length || 0;
+                    
+                    // Update changes (mock data for demo)
+                    document.getElementById('modsChange').textContent = '+12%';
+                    document.getElementById('pendingChange').textContent = '3';
+                    document.getElementById('downloadsChange').textContent = '+24%';
+                    document.getElementById('usersChange').textContent = '+8%';
+                    
+                } catch (error) {
+                    console.error('Error loading stats:', error);
+                }
+            }
+            
+            async loadMods() {
+                try {
+                    const { data: mods, error } = await supabaseClient
+                        .from('mods')
+                        .select('*')
+                        .order('created_at', { ascending: false })
+                        .limit(50);
+                    
+                    if (error) throw error;
+                    
+                    this.mods = mods || [];
+                    this.renderModsTable();
+                    
+                } catch (error) {
+                    console.error('Error loading mods:', error);
+                }
+            }
+            
+            renderModsTable() {
+                const container = document.getElementById('modsTableBody');
+                if (!container) return;
+                
+                container.innerHTML = '';
+                
+                if (this.mods.length === 0) {
+                    container.innerHTML = `
+                        <tr>
+                            <td colspan="8" class="text-center py-8">
+                                <i class="fas fa-box-open text-2xl neu-text-accent mb-2"></i>
+                                <p class="neu-text-light">No mods found</p>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                this.mods.forEach(mod => {
+                    const row = document.createElement('tr');
+                    const status = mod.approved ? 'approved' : 'pending';
+                    const statusClass = mod.approved ? 'status-approved' : 'status-pending';
+                    
+                    row.innerHTML = `
+                        <td>
+                            <input type="checkbox" class="mod-checkbox" data-mod-id="${mod.id}">
+                        </td>
+                        <td>
+                            <div class="font-semibold neu-text-primary">${mod.title}</div>
+                            <div class="text-sm neu-text-light">${mod.type?.join(', ') || 'Unknown'}</div>
+                        </td>
+                        <td>${mod.owner || 'Unknown'}</td>
+                        <td>
+                            <span class="status-badge ${statusClass}">${status}</span>
+                            ${mod.featured ? '<span class="status-badge status-approved ml-1">Featured</span>' : ''}
+                        </td>
+                        <td>${mod.download_count || 0}</td>
+                        <td>
+                            <div class="flex items-center">
+                                <span class="mr-1">${mod.rating?.toFixed(1) || '0.0'}</span>
+                                <div class="neu-rating-small">
+                                    ${this.generateStars(mod.rating || 0)}
+                                </div>
+                            </div>
+                        </td>
+                        <td>${formatDate(mod.created_at)}</td>
+                        <td>
+                            <div class="flex gap-1">
+                                <button class="neu-btn-icon-sm view-mod" data-mod-id="${mod.id}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="neu-btn-icon-sm edit-mod" data-mod-id="${mod.id}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="neu-btn-icon-sm delete-mod" data-mod-id="${mod.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    
+                    container.appendChild(row);
+                    
+                    // Add event listeners
+                    const checkbox = row.querySelector('.mod-checkbox');
+                    checkbox.addEventListener('change', (e) => {
+                        if (e.target.checked) {
+                            this.selectedMods.add(mod.id);
+                        } else {
+                            this.selectedMods.delete(mod.id);
+                        }
+                    });
+                    
+                    row.querySelector('.view-mod').addEventListener('click', () => {
+                        this.viewModDetails(mod.id);
+                    });
+                    
+                    row.querySelector('.edit-mod').addEventListener('click', () => {
+                        this.editMod(mod.id);
+                    });
+                    
+                    row.querySelector('.delete-mod').addEventListener('click', () => {
+                        this.deleteMod(mod.id);
+                    });
+                });
+                
+                // Select all checkbox
+                const selectAll = document.getElementById('selectAllMods');
+                if (selectAll) {
+                    selectAll.addEventListener('change', (e) => {
+                        const checkboxes = container.querySelectorAll('.mod-checkbox');
+                        checkboxes.forEach(cb => {
+                            cb.checked = e.target.checked;
+                            const modId = cb.dataset.modId;
+                            if (e.target.checked) {
+                                this.selectedMods.add(modId);
+                            } else {
+                                this.selectedMods.delete(modId);
+                            }
+                        });
+                    });
+                }
+            }
+            
+            async loadAnalytics() {
+                // Initialize charts
+                this.initCharts();
+                
+                // Load top mods
+                await this.loadTopMods();
+            }
+            
+            initCharts() {
+                const downloadsCtx = document.getElementById('downloadsChart')?.getContext('2d');
+                const modsCtx = document.getElementById('modsChart')?.getContext('2d');
+                
+                if (downloadsCtx) {
+                    this.charts.downloads = new Chart(downloadsCtx, {
+                        type: 'line',
+                        data: {
+                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                            datasets: [{
+                                label: 'Downloads',
+                                data: [1200, 1900, 3000, 5000, 2000, 3000],
+                                borderColor: '#5685FF',
+                                backgroundColor: 'rgba(86, 133, 255, 0.1)',
+                                fill: true,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: 'var(--neu-text)'
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: {
+                                        color: 'var(--neu-dark)'
+                                    },
+                                    ticks: {
+                                        color: 'var(--neu-text)'
+                                    }
+                                },
+                                y: {
+                                    grid: {
+                                        color: 'var(--neu-dark)'
+                                    },
+                                    ticks: {
+                                        color: 'var(--neu-text)'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                if (modsCtx) {
+                    this.charts.mods = new Chart(modsCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Aimbot', 'Wallhack', 'ESP', 'Speed', 'Other'],
+                            datasets: [{
+                                data: [30, 25, 20, 15, 10],
+                                backgroundColor: [
+                                    '#5685FF',
+                                    '#EC7EDA',
+                                    '#44DBE5',
+                                    '#68DEB4',
+                                    '#F59E0B'
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        color: 'var(--neu-text)',
+                                        padding: 20
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+            
+            async loadTopMods() {
+                try {
+                    const { data: mods, error } = await supabaseClient
+                        .from('mods')
+                        .select('*')
+                        .eq('approved', true)
+                        .order('download_count', { ascending: false })
+                        .limit(10);
+                    
+                    if (error) throw error;
+                    
+                    this.renderTopModsTable(mods || []);
+                    
+                } catch (error) {
+                    console.error('Error loading top mods:', error);
+                }
+            }
+            
+            renderTopModsTable(mods) {
+                const container = document.getElementById('topModsTable');
+                if (!container) return;
+                
+                container.innerHTML = '';
+                
+                mods.forEach((mod, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td class="font-semibold">${mod.title}</td>
+                        <td>${mod.owner || 'Unknown'}</td>
+                        <td>${mod.download_count || 0}</td>
+                        <td>${mod.rating?.toFixed(1) || '0.0'}</td>
+                        <td>
+                            <span class="status-badge ${mod.approved ? 'status-approved' : 'status-pending'}">
+                                ${mod.approved ? 'Approved' : 'Pending'}
+                            </span>
+                        </td>
+                    `;
+                    container.appendChild(row);
+                });
+            }
+            
+            async loadMessages() {
+                try {
+                    const { data: messages, error } = await supabaseClient
+                        .from('messages')
+                        .select('*')
+                        .order('created_at', { ascending: false })
+                        .limit(50);
+                    
+                    if (error) throw error;
+                    
+                    this.messages = messages || [];
+                    this.renderMessagesTable();
+                    
+                } catch (error) {
+                    console.error('Error loading messages:', error);
+                }
+            }
+            
+            renderMessagesTable() {
+                const container = document.getElementById('messagesTableBody');
+                if (!container) return;
+                
+                container.innerHTML = '';
+                
+                if (this.messages.length === 0) {
+                    container.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center py-8">
+                                <i class="fas fa-envelope-open text-2xl neu-text-accent mb-2"></i>
+                                <p class="neu-text-light">No messages found</p>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                this.messages.forEach(message => {
+                    const row = document.createElement('tr');
+                    const isRead = message.read;
+                    
+                    row.innerHTML = `
+                        <td>
+                            <input type="checkbox" class="message-checkbox" data-message-id="${message.id}">
+                        </td>
+                        <td>
+                            <div class="font-semibold neu-text-primary">${message.name}</div>
+                        </td>
+                        <td>
+                            <div class="neu-text-light text-sm">${message.email}</div>
+                        </td>
+                        <td>${message.subject || 'No Subject'}</td>
+                        <td>
+                            <div class="text-sm neu-text-light">${formatDate(message.created_at)}</div>
+                            ${isRead ? '' : '<div class="text-xs neu-text-accent">New</div>'}
+                        </td>
+                        <td>
+                            <span class="status-badge ${isRead ? 'status-approved' : 'status-pending'}">
+                                ${isRead ? 'Read' : 'Unread'}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="flex gap-1">
+                                <button class="neu-btn-icon-sm view-message" data-message-id="${message.id}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="neu-btn-icon-sm delete-message" data-message-id="${message.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    
+                    container.appendChild(row);
+                    
+                    // Add event listeners
+                    const checkbox = row.querySelector('.message-checkbox');
+                    checkbox.addEventListener('change', (e) => {
+                        if (e.target.checked) {
+                            this.selectedMessages.add(message.id);
+                        } else {
+                            this.selectedMessages.delete(message.id);
+                        }
+                    });
+                    
+                    row.querySelector('.view-message').addEventListener('click', () => {
+                        this.viewMessageDetails(message.id);
+                    });
+                    
+                    row.querySelector('.delete-message').addEventListener('click', () => {
+                        this.deleteMessage(message.id);
+                    });
+                });
+                
+                // Select all checkbox
+                const selectAll = document.getElementById('selectAllMessages');
+                if (selectAll) {
+                    selectAll.addEventListener('change', (e) => {
+                        const checkboxes = container.querySelectorAll('.message-checkbox');
+                        checkboxes.forEach(cb => {
+                            cb.checked = e.target.checked;
+                            const messageId = cb.dataset.messageId;
+                            if (e.target.checked) {
+                                this.selectedMessages.add(messageId);
+                            } else {
+                                this.selectedMessages.delete(messageId);
+                            }
+                        });
+                    });
+                }
+            }
+            
+            async loadUsers() {
+                try {
+                    const { data: { users }, error } = await supabaseClient.auth.admin.listUsers();
+                    
+                    if (error) throw error;
+                    
+                    this.users = users || [];
+                    this.renderUsersTable();
+                    
+                } catch (error) {
+                    console.error('Error loading users:', error);
+                }
+            }
+            
+            renderUsersTable() {
+                const container = document.getElementById('usersTableBody');
+                if (!container) return;
+                
+                container.innerHTML = '';
+                
+                if (this.users.length === 0) {
+                    container.innerHTML = `
+                        <tr>
+                            <td colspan="8" class="text-center py-8">
+                                <i class="fas fa-users text-2xl neu-text-accent mb-2"></i>
+                                <p class="neu-text-light">No users found</p>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                this.users.forEach(user => {
+                    const row = document.createElement('tr');
+                    const isAdmin = user.user_metadata?.is_admin === true;
+                    const isBanned = user.banned;
+                    
+                    row.innerHTML = `
+                        <td>
+                            <input type="checkbox" class="user-checkbox" data-user-id="${user.id}">
+                        </td>
+                        <td>
+                            <div class="font-semibold neu-text-primary">${user.user_metadata?.full_name || user.email}</div>
+                            <div class="text-sm neu-text-light">${user.id.substring(0, 8)}...</div>
+                        </td>
+                        <td>${user.email}</td>
+                        <td>
+                            <span class="status-badge ${isAdmin ? 'status-approved' : 'status-pending'}">
+                                ${isAdmin ? 'Admin' : 'User'}
+                            </span>
+                        </td>
+                        <td>
+                            <!-- User mod count would be fetched separately -->
+                            0
+                        </td>
+                        <td>
+                            <div class="text-sm neu-text-light">${formatDate(user.created_at)}</div>
+                        </td>
+                        <td>
+                            <span class="status-badge ${isBanned ? 'status-rejected' : 'status-approved'}">
+                                ${isBanned ? 'Banned' : 'Active'}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="flex gap-1">
+                                <button class="neu-btn-icon-sm ${isBanned ? 'unban-user' : 'ban-user'}" data-user-id="${user.id}">
+                                    <i class="fas ${isBanned ? 'fa-user-check' : 'fa-user-slash'}"></i>
+                                </button>
+                                ${!isAdmin ? `
+                                    <button class="neu-btn-icon-sm make-admin" data-user-id="${user.id}">
+                                        <i class="fas fa-user-shield"></i>
+                                    </button>
+                                ` : ''}
+                                <button class="neu-btn-icon-sm delete-user" data-user-id="${user.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    
+                    container.appendChild(row);
+                    
+                    // Add event listeners
+                    const checkbox = row.querySelector('.user-checkbox');
+                    checkbox.addEventListener('change', (e) => {
+                        if (e.target.checked) {
+                            this.selectedUsers.add(user.id);
+                        } else {
+                            this.selectedUsers.delete(user.id);
+                        }
+                    });
+                    
+                    row.querySelector('.ban-user, .unban-user').addEventListener('click', () => {
+                        this.toggleUserBan(user.id, !isBanned);
+                    });
+                    
+                    row.querySelector('.make-admin')?.addEventListener('click', () => {
+                        this.makeUserAdmin(user.id);
+                    });
+                    
+                    row.querySelector('.delete-user').addEventListener('click', () => {
+                        this.deleteUser(user.id);
+                    });
+                });
+                
+                // Select all checkbox
+                const selectAll = document.getElementById('selectAllUsers');
+                if (selectAll) {
+                    selectAll.addEventListener('change', (e) => {
+                        const checkboxes = container.querySelectorAll('.user-checkbox');
+                        checkboxes.forEach(cb => {
+                            cb.checked = e.target.checked;
+                            const userId = cb.dataset.userId;
+                            if (e.target.checked) {
+                                this.selectedUsers.add(userId);
+                            } else {
+                                this.selectedUsers.delete(userId);
+                            }
+                        });
+                    });
+                }
+            }
+            
+            switchTab(tabId) {
+                // Hide all tab contents
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Deactivate all tabs
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // Show selected tab content
+                document.getElementById(`${tabId}Tab`).classList.add('active');
+                
+                // Activate selected tab
+                document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
+                
+                // Update current tab and load data
+                this.currentTab = tabId;
+                this.loadDashboardData();
+            }
+            
+            async viewModDetails(modId) {
+                try {
+                    const { data: mod, error } = await supabaseClient
+                        .from('mods')
+                        .select('*')
+                        .eq('id', modId)
+                        .single();
+                    
+                    if (error) throw error;
+                    
+                    const modal = document.getElementById('modDetailsModal');
+                    const content = document.getElementById('modDetailsContent');
+                    
+                    content.innerHTML = `
+                        <div class="space-y-4">
+                            <div>
+                                <label class="neu-text-light text-sm">Title:</label>
+                                <div class="font-semibold neu-text-primary">${mod.title}</div>
+                            </div>
+                            
+                            <div>
+                                <label class="neu-text-light text-sm">Description:</label>
+                                <div class="neu-text-primary">${mod.description || 'No description'}</div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="neu-text-light text-sm">Type:</label>
+                                    <div class="font-semibold neu-text-primary">${mod.type?.join(', ') || 'Unknown'}</div>
+                                </div>
+                                <div>
+                                    <label class="neu-text-light text-sm">CPU Arch:</label>
+                                    <div class="font-semibold neu-text-primary">${mod.cpu_arch || 'All'}</div>
+                                </div>
+                                <div>
+                                    <label class="neu-text-light text-sm">Owner:</label>
+                                    <div class="font-semibold neu-text-primary">${mod.owner || 'Unknown'}</div>
+                                </div>
+                                <div>
+                                    <label class="neu-text-light text-sm">Downloads:</label>
+                                    <div class="font-semibold neu-text-primary">${mod.download_count || 0}</div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="neu-text-light text-sm">Guide:</label>
+                                <div class="neu-card-inner p-3 max-h-60 overflow-y-auto">
+                                    ${mod.guide_markdown ? marked.parse(mod.guide_markdown) : '<p class="neu-text-light">No guide provided</p>'}
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="neu-text-light text-sm">Status:</label>
+                                <div class="flex items-center gap-2">
+                                    <span class="status-badge ${mod.approved ? 'status-approved' : 'status-pending'}">
+                                        ${mod.approved ? 'Approved' : 'Pending'}
+                                    </span>
+                                    <span class="status-badge ${mod.featured ? 'status-approved' : ''}">
+                                        ${mod.featured ? 'Featured' : 'Not Featured'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Store current mod ID for actions
+                    content.dataset.modId = modId;
+                    
+                    modal.classList.add('active');
+                    
+                } catch (error) {
+                    console.error('Error loading mod details:', error);
+                    app.showToast('Error loading mod details', 'error');
+                }
+            }
+            
+            async viewMessageDetails(messageId) {
+                try {
+                    const { data: message, error } = await supabaseClient
+                        .from('messages')
+                        .select('*')
+                        .eq('id', messageId)
+                        .single();
+                    
+                    if (error) throw error;
+                    
+                    const modal = document.getElementById('messageDetailsModal');
+                    const content = document.getElementById('messageDetailsContent');
+                    
+                    content.innerHTML = `
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="neu-text-light text-sm">From:</label>
+                                    <div class="font-semibold neu-text-primary">${message.name}</div>
+                                </div>
+                                <div>
+                                    <label class="neu-text-light text-sm">Email:</label>
+                                    <div class="font-semibold neu-text-primary">${message.email}</div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="neu-text-light text-sm">Subject:</label>
+                                <div class="font-semibold neu-text-primary">${message.subject || 'No Subject'}</div>
+                            </div>
+                            
+                            <div>
+                                <label class="neu-text-light text-sm">Message:</label>
+                                <div class="neu-card-inner p-3 max-h-60 overflow-y-auto">
+                                    <p class="neu-text-primary whitespace-pre-wrap">${message.message}</p>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="neu-text-light text-sm">Date:</label>
+                                <div class="font-semibold neu-text-primary">${formatDate(message.created_at)}</div>
+                            </div>
+                            
+                            <div>
+                                <label class="neu-text-light text-sm">Status:</label>
+                                <span class="status-badge ${message.read ? 'status-approved' : 'status-pending'}">
+                                    ${message.read ? 'Read' : 'Unread'}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Store current message ID for actions
+                    content.dataset.messageId = messageId;
+                    
+                    modal.classList.add('active');
+                    
+                    // Mark as read if unread
+                    if (!message.read) {
+                        await this.markMessageAsRead(messageId);
+                    }
+                    
+                } catch (error) {
+                    console.error('Error loading message details:', error);
+                    app.showToast('Error loading message details', 'error');
+                }
+            }
+            
+            async approveMod() {
+                const modId = document.getElementById('modDetailsContent').dataset.modId;
+                if (!modId) return;
+                
+                try {
+                    const { error } = await supabaseClient
+                        .from('mods')
+                        .update({ approved: true })
+                        .eq('id', modId);
+                    
+                    if (error) throw error;
+                    
+                    app.showToast('Mod approved successfully', 'success');
+                    this.closeModal();
+                    this.loadMods();
+                    this.loadStats();
+                    
+                } catch (error) {
+                    console.error('Error approving mod:', error);
+                    app.showToast('Error approving mod', 'error');
+                }
+            }
+            
+            async rejectMod() {
+                const modId = document.getElementById('modDetailsContent').dataset.modId;
+                if (!modId) return;
+                
+                try {
+                    const { error } = await supabaseClient
+                        .from('mods')
+                        .update({ approved: false })
+                        .eq('id', modId);
+                    
+                    if (error) throw error;
+                    
+                    app.showToast('Mod rejected', 'success');
+                    this.closeModal();
+                    this.loadMods();
+                    this.loadStats();
+                    
+                } catch (error) {
+                    console.error('Error rejecting mod:', error);
+                    app.showToast('Error rejecting mod', 'error');
+                }
+            }
+            
+            async markMessageAsRead(messageId) {
+                try {
+                    const { error } = await supabaseClient
+                        .from('messages')
+                        .update({ read: true })
+                        .eq('id', messageId);
+                    
+                    if (error) throw error;
+                    
+                    // Reload messages
+                    this.loadMessages();
+                    
+                } catch (error) {
+                    console.error('Error marking message as read:', error);
+                }
+            }
+            
+            async toggleUserBan(userId, ban) {
+                try {
+                    const { error } = await supabaseClient.auth.admin.updateUserById(
+                        userId,
+                        { ban: { banned: ban } }
+                    );
+                    
+                    if (error) throw error;
+                    
+                    app.showToast(`User ${ban ? 'banned' : 'unbanned'} successfully`, 'success');
+                    this.loadUsers();
+                    
+                } catch (error) {
+                    console.error('Error toggling user ban:', error);
+                    app.showToast('Error updating user', 'error');
+                }
+            }
+            
+            async makeUserAdmin(userId) {
+                try {
+                    const { error } = await supabaseClient.auth.admin.updateUserById(
+                        userId,
+                        { user_metadata: { is_admin: true } }
+                    );
+                    
+                    if (error) throw error;
+                    
+                    app.showToast('User granted admin privileges', 'success');
+                    this.loadUsers();
+                    
+                } catch (error) {
+                    console.error('Error making user admin:', error);
+                    app.showToast('Error updating user', 'error');
+                }
+            }
+            
+            async deleteMod(modId) {
+                if (!confirm('Are you sure you want to delete this mod? This action cannot be undone.')) {
+                    return;
+                }
+                
+                try {
+                    const { error } = await supabaseClient
+                        .from('mods')
+                        .delete()
+                        .eq('id', modId);
+                    
+                    if (error) throw error;
+                    
+                    app.showToast('Mod deleted successfully', 'success');
+                    this.loadMods();
+                    this.loadStats();
+                    
+                } catch (error) {
+                    console.error('Error deleting mod:', error);
+                    app.showToast('Error deleting mod', 'error');
+                }
+            }
+            
+            async deleteMessage(messageId) {
+                if (!confirm('Are you sure you want to delete this message?')) {
+                    return;
+                }
+                
+                try {
+                    const { error } = await supabaseClient
+                        .from('messages')
+                        .delete()
+                        .eq('id', messageId);
+                    
+                    if (error) throw error;
+                    
+                    app.showToast('Message deleted', 'success');
+                    this.loadMessages();
+                    
+                } catch (error) {
+                    console.error('Error deleting message:', error);
+                    app.showToast('Error deleting message', 'error');
+                }
+            }
+            
+            async deleteUser(userId) {
+                if (!confirm('Are you sure you want to delete this user? This will permanently remove their account.')) {
+                    return;
+                }
+                
+                try {
+                    const { error } = await supabaseClient.auth.admin.deleteUser(
+                        userId
+                    );
+                    
+                    if (error) throw error;
+                    
+                    app.showToast('User deleted successfully', 'success');
+                    this.loadUsers();
+                    this.loadStats();
+                    
+                } catch (error) {
+                    console.error('Error deleting user:', error);
+                    app.showToast('Error deleting user', 'error');
+                }
+            }
+            
+            handleQuickAction(action) {
+                switch (action) {
+                    case 'approve-selected':
+                        this.approveSelectedMods();
+                        break;
+                    case 'reject-selected':
+                        this.rejectSelectedMods();
+                        break;
+                    case 'feature-selected':
+                        this.featureSelectedMods();
+                        break;
+                    case 'delete-selected':
+                        this.deleteSelectedMods();
+                        break;
+                }
+            }
+            
+            async approveSelectedMods() {
+                if (this.selectedMods.size === 0) {
+                    app.showToast('No mods selected', 'warning');
+                    return;
+                }
+                
+                try {
+                    const { error } = await supabaseClient
+                        .from('mods')
+                        .update({ approved: true })
+                        .in('id', Array.from(this.selectedMods));
+                    
+                    if (error) throw error;
+                    
+                    app.showToast(`${this.selectedMods.size} mod(s) approved`, 'success');
+                    this.selectedMods.clear();
+                    this.loadMods();
+                    this.loadStats();
+                    
+                } catch (error) {
+                    console.error('Error approving mods:', error);
+                    app.showToast('Error approving mods', 'error');
+                }
+            }
+            
+            async rejectSelectedMods() {
+                if (this.selectedMods.size === 0) {
+                    app.showToast('No mods selected', 'warning');
+                    return;
+                }
+                
+                try {
+                    const { error } = await supabaseClient
+                        .from('mods')
+                        .update({ approved: false })
+                        .in('id', Array.from(this.selectedMods));
+                    
+                    if (error) throw error;
+                    
+                    app.showToast(`${this.selectedMods.size} mod(s) rejected`, 'success');
+                    this.selectedMods.clear();
+                    this.loadMods();
+                    this.loadStats();
+                    
+                } catch (error) {
+                    console.error('Error rejecting mods:', error);
+                    app.showToast('Error rejecting mods', 'error');
+                }
+            }
+            
+            async featureSelectedMods() {
+                if (this.selectedMods.size === 0) {
+                    app.showToast('No mods selected', 'warning');
+                    return;
+                }
+                
+                try {
+                    const { error } = await supabaseClient
+                        .from('mods')
+                        .update({ featured: true })
+                        .in('id', Array.from(this.selectedMods));
+                    
+                    if (error) throw error;
+                    
+                    app.showToast(`${this.selectedMods.size} mod(s) featured`, 'success');
+                    this.selectedMods.clear();
+                    this.loadMods();
+                    
+                } catch (error) {
+                    console.error('Error featuring mods:', error);
+                    app.showToast('Error featuring mods', 'error');
+                }
+            }
+            
+            async deleteSelectedMods() {
+                if (this.selectedMods.size === 0) {
+                    app.showToast('No mods selected', 'warning');
+                    return;
+                }
+                
+                if (!confirm(`Are you sure you want to delete ${this.selectedMods.size} mod(s)? This action cannot be undone.`)) {
+                    return;
+                }
+                
+                try {
+                    const { error } = await supabaseClient
+                        .from('mods')
+                        .delete()
+                        .in('id', Array.from(this.selectedMods));
+                    
+                    if (error) throw error;
+                    
+                    app.showToast(`${this.selectedMods.size} mod(s) deleted`, 'success');
+                    this.selectedMods.clear();
+                    this.loadMods();
+                    this.loadStats();
+                    
+                } catch (error) {
+                    console.error('Error deleting mods:', error);
+                    app.showToast('Error deleting mods', 'error');
+                }
+            }
+            
+            updateCharts() {
+                // In a real app, update charts with filtered data
+                // For demo, just show a message
+                app.showToast('Charts updated with selected date range', 'info');
+            }
+            
+            saveSettings() {
+                // In a real app, save settings to database
+                app.showToast('Settings saved successfully', 'success');
+            }
+            
+            closeModal() {
+                document.querySelectorAll('.modal-overlay').forEach(modal => {
+                    modal.classList.remove('active');
+                });
+            }
+            
+            generateStars(rating) {
+                return app.generateStars(rating);
+            }
+        }
+        
+        // Initialize admin dashboard
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialize main app first
+            if (!window.app) {
+                window.app = new BloodStrikeApp();
+            }
+            
+            // Initialize admin dashboard
+            window.adminDashboard = new AdminDashboard();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | BloodStrike H@ck Library</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../styles/neumorphic.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../supabase-config.js" defer></script>
+    <style>
+        .auth-container {
+            min-height: calc(100vh - 200px);
+        }
+        
+        .auth-card {
+            max-width: 450px;
+            margin: 0 auto;
+        }
+        
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            margin: 2rem 0;
+        }
+        
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--neu-dark);
+        }
+        
+        .auth-divider span {
+            padding: 0 1rem;
+            color: var(--neu-text-light);
+        }
+        
+        .social-auth-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 12px;
+            background: var(--neu-bg);
+            box-shadow: 4px 4px 8px var(--neu-dark),
+                        -4px -4px 8px var(--neu-light);
+            border: none;
+            color: var(--neu-text);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .social-auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 12px var(--neu-dark),
+                        -6px -6px 12px var(--neu-light);
+        }
+        
+        .social-auth-btn.google {
+            color: #DB4437;
+        }
+        
+        .social-auth-btn.github {
+            color: #333;
+        }
+        
+        .social-auth-btn.discord {
+            color: #7289DA;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            border-radius: 12px;
+            background: var(--neu-bg);
+            box-shadow: inset 4px 4px 8px var(--neu-dark),
+                        inset -4px -4px 8px var(--neu-light);
+            padding: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 0.75rem;
+            text-align: center;
+            border-radius: 8px;
+            color: var(--neu-text);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-tab.active {
+            background: var(--neu-bg);
+            box-shadow: 4px 4px 8px var(--neu-dark),
+                        -4px -4px 8px var(--neu-light);
+            color: var(--neu-primary);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Simple Navbar for Auth Pages -->
+    <nav class="neu-navbar">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="neu-logo">
+                        <i class="fas fa-bolt text-blue-500"></i>
+                    </div>
+                    <a href="../index.html" class="text-2xl font-bold neu-text-primary">BloodStrike<span class="neu-text-accent">Mods</span></a>
+                </div>
+                <a href="../index.html" class="neu-btn-sm">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Auth Container -->
+    <div class="auth-container flex items-center justify-center px-4 py-12">
+        <div class="auth-card neu-card">
+            <!-- Tabs -->
+            <div class="auth-tabs">
+                <div id="loginTab" class="auth-tab active">Login</div>
+                <div id="signupTab" class="auth-tab">Sign Up</div>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginForm">
+                <h2 class="text-2xl font-bold neu-text-primary mb-2">Welcome Back</h2>
+                <p class="neu-text-light mb-6">Sign in to access your account</p>
+                
+                <form id="loginFormElement">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="neu-text-primary font-semibold mb-2 block">Email Address</label>
+                            <input type="email" 
+                                   id="loginEmail" 
+                                   class="neu-input" 
+                                   placeholder="you@example.com"
+                                   required>
+                        </div>
+                        
+                        <div>
+                            <label class="neu-text-primary font-semibold mb-2 block">Password</label>
+                            <input type="password" 
+                                   id="loginPassword" 
+                                   class="neu-input" 
+                                   placeholder="••••••••"
+                                   required>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="neu-checkbox mr-2">
+                                <span class="neu-text-light text-sm">Remember me</span>
+                            </label>
+                            <a href="#" id="forgotPassword" class="neu-link text-sm">Forgot password?</a>
+                        </div>
+                        
+                        <button type="submit" class="neu-btn neu-btn-primary w-full">
+                            <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="auth-divider">
+                    <span>Or continue with</span>
+                </div>
+                
+                <div class="space-y-3">
+                    <button class="social-auth-btn google" onclick="authWithProvider('google')">
+                        <i class="fab fa-google"></i>
+                        Continue with Google
+                    </button>
+                    <button class="social-auth-btn github" onclick="authWithProvider('github')">
+                        <i class="fab fa-github"></i>
+                        Continue with GitHub
+                    </button>
+                    <button class="social-auth-btn discord" onclick="authWithProvider('discord')">
+                        <i class="fab fa-discord"></i>
+                        Continue with Discord
+                    </button>
+                </div>
+            </div>
+
+            <!-- Signup Form -->
+            <div id="signupForm" class="hidden">
+                <h2 class="text-2xl font-bold neu-text-primary mb-2">Create Account</h2>
+                <p class="neu-text-light mb-6">Join our community of gamers</p>
+                
+                <form id="signupFormElement">
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="neu-text-primary font-semibold mb-2 block">First Name</label>
+                                <input type="text" 
+                                       id="signupFirstName" 
+                                       class="neu-input" 
+                                       placeholder="John"
+                                       required>
+                            </div>
+                            <div>
+                                <label class="neu-text-primary font-semibold mb-2 block">Last Name</label>
+                                <input type="text" 
+                                       id="signupLastName" 
+                                       class="neu-input" 
+                                       placeholder="Doe"
+                                       required>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="neu-text-primary font-semibold mb-2 block">Email Address</label>
+                            <input type="email" 
+                                   id="signupEmail" 
+                                   class="neu-input" 
+                                   placeholder="you@example.com"
+                                   required>
+                        </div>
+                        
+                        <div>
+                            <label class="neu-text-primary font-semibold mb-2 block">Password</label>
+                            <input type="password" 
+                                   id="signupPassword" 
+                                   class="neu-input" 
+                                   placeholder="••••••••"
+                                   minlength="6"
+                                   required>
+                            <p class="neu-text-light text-xs mt-1">Minimum 6 characters</p>
+                        </div>
+                        
+                        <div>
+                            <label class="neu-text-primary font-semibold mb-2 block">Confirm Password</label>
+                            <input type="password" 
+                                   id="signupConfirmPassword" 
+                                   class="neu-input" 
+                                   placeholder="••••••••"
+                                   required>
+                        </div>
+                        
+                        <label class="flex items-start">
+                            <input type="checkbox" class="neu-checkbox mr-2 mt-1" required>
+                            <span class="neu-text-light text-sm">
+                                I agree to the <a href="#" class="neu-link">Terms of Service</a> and 
+                                <a href="#" class="neu-link">Privacy Policy</a>
+                            </span>
+                        </label>
+                        
+                        <button type="submit" class="neu-btn neu-btn-primary w-full">
+                            <i class="fas fa-user-plus mr-2"></i> Create Account
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="auth-divider">
+                    <span>Or sign up with</span>
+                </div>
+                
+                <div class="space-y-3">
+                    <button class="social-auth-btn google" onclick="authWithProvider('google')">
+                        <i class="fab fa-google"></i>
+                        Continue with Google
+                    </button>
+                    <button class="social-auth-btn github" onclick="authWithProvider('github')">
+                        <i class="fab fa-github"></i>
+                        Continue with GitHub
+                    </button>
+                    <button class="social-auth-btn discord" onclick="authWithProvider('discord')">
+                        <i class="fab fa-discord"></i>
+                        Continue with Discord
+                    </button>
+                </div>
+            </div>
+
+            <!-- Forgot Password Form -->
+            <div id="forgotPasswordForm" class="hidden">
+                <h2 class="text-2xl font-bold neu-text-primary mb-2">Reset Password</h2>
+                <p class="neu-text-light mb-6">Enter your email to receive a reset link</p>
+                
+                <form id="forgotPasswordFormElement">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="neu-text-primary font-semibold mb-2 block">Email Address</label>
+                            <input type="email" 
+                                   id="resetEmail" 
+                                   class="neu-input" 
+                                   placeholder="you@example.com"
+                                   required>
+                        </div>
+                        
+                        <button type="submit" class="neu-btn neu-btn-primary w-full">
+                            <i class="fas fa-paper-plane mr-2"></i> Send Reset Link
+                        </button>
+                        
+                        <button type="button" id="backToLogin" class="neu-btn w-full">
+                            <i class="fas fa-arrow-left mr-2"></i> Back to Login
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
+
+    <script>
+        class AuthPage {
+            constructor() {
+                this.currentForm = 'login';
+                this.init();
+            }
+            
+            init() {
+                // Check URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                const action = urlParams.get('action');
+                
+                if (action === 'signup') {
+                    this.showForm('signup');
+                }
+                
+                this.initEventListeners();
+            }
+            
+            initEventListeners() {
+                // Tab switching
+                document.getElementById('loginTab').addEventListener('click', () => {
+                    this.showForm('login');
+                });
+                
+                document.getElementById('signupTab').addEventListener('click', () => {
+                    this.showForm('signup');
+                });
+                
+                // Forgot password
+                document.getElementById('forgotPassword').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.showForm('forgot');
+                });
+                
+                // Back to login from forgot password
+                document.getElementById('backToLogin').addEventListener('click', () => {
+                    this.showForm('login');
+                });
+                
+                // Form submissions
+                document.getElementById('loginFormElement').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleLogin();
+                });
+                
+                document.getElementById('signupFormElement').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleSignup();
+                });
+                
+                document.getElementById('forgotPasswordFormElement').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handlePasswordReset();
+                });
+            }
+            
+            showForm(form) {
+                // Update tabs
+                document.getElementById('loginTab').classList.toggle('active', form === 'login');
+                document.getElementById('signupTab').classList.toggle('active', form === 'signup');
+                
+                // Show/hide forms
+                document.getElementById('loginForm').classList.toggle('hidden', form !== 'login');
+                document.getElementById('signupForm').classList.toggle('hidden', form !== 'signup');
+                document.getElementById('forgotPasswordForm').classList.toggle('hidden', form !== 'forgot');
+                
+                this.currentForm = form;
+            }
+            
+            async handleLogin() {
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                try {
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({
+                        email,
+                        password
+                    });
+                    
+                    if (error) throw error;
+                    
+                    this.showToast('Login successful!', 'success');
+                    
+                    // Redirect to home page after a brief delay
+                    setTimeout(() => {
+                        window.location.href = '../index.html';
+                    }, 1500);
+                    
+                } catch (error) {
+                    this.showToast(error.message, 'error');
+                }
+            }
+            
+            async handleSignup() {
+                const firstName = document.getElementById('signupFirstName').value;
+                const lastName = document.getElementById('signupLastName').value;
+                const email = document.getElementById('signupEmail').value;
+                const password = document.getElementById('signupPassword').value;
+                const confirmPassword = document.getElementById('signupConfirmPassword').value;
+                
+                // Validate passwords match
+                if (password !== confirmPassword) {
+                    this.showToast('Passwords do not match', 'error');
+                    return;
+                }
+                
+                try {
+                    const { data, error } = await supabaseClient.auth.signUp({
+                        email,
+                        password,
+                        options: {
+                            data: {
+                                first_name: firstName,
+                                last_name: lastName,
+                                full_name: `${firstName} ${lastName}`
+                            }
+                        }
+                    });
+                    
+                    if (error) throw error;
+                    
+                    this.showToast('Account created successfully! Please check your email for verification.', 'success');
+                    
+                    // Switch to login form after a delay
+                    setTimeout(() => {
+                        this.showForm('login');
+                    }, 3000);
+                    
+                } catch (error) {
+                    this.showToast(error.message, 'error');
+                }
+            }
+            
+            async handlePasswordReset() {
+                const email = document.getElementById('resetEmail').value;
+                
+                try {
+                    const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                        redirectTo: `${window.location.origin}/pages/login.html?action=reset`
+                    });
+                    
+                    if (error) throw error;
+                    
+                    this.showToast('Password reset link sent to your email', 'success');
+                    
+                    // Switch back to login form
+                    setTimeout(() => {
+                        this.showForm('login');
+                    }, 3000);
+                    
+                } catch (error) {
+                    this.showToast(error.message, 'error');
+                }
+            }
+            
+            showToast(message, type = 'info') {
+                const container = document.getElementById('toastContainer');
+                if (!container) return;
+                
+                const toast = document.createElement('div');
+                toast.className = `neu-toast ${type}`;
+                
+                const icons = {
+                    success: 'fas fa-check-circle',
+                    error: 'fas fa-exclamation-circle',
+                    warning: 'fas fa-exclamation-triangle',
+                    info: 'fas fa-info-circle'
+                };
+                
+                toast.innerHTML = `
+                    <i class="${icons[type] || icons.info} text-${type === 'success' ? 'green' : type === 'error' ? 'red' : type === 'warning' ? 'yellow' : 'blue'}-500"></i>
+                    <span>${message}</span>
+                `;
+                
+                container.appendChild(toast);
+                
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    toast.style.animation = 'slideIn 0.3s ease reverse';
+                    setTimeout(() => {
+                        if (toast.parentNode) {
+                            toast.parentNode.removeChild(toast);
+                        }
+                    }, 300);
+                }, 5000);
+            }
+        }
+        
+        // Social auth function
+        async function authWithProvider(provider) {
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithOAuth({
+                    provider: provider,
+                    options: {
+                        redirectTo: `${window.location.origin}/index.html`
+                    }
+                });
+                
+                if (error) throw error;
+            } catch (error) {
+                console.error('OAuth error:', error);
+                alert('Error with social login');
+            }
+        }
+        
+        // Initialize auth page
+        document.addEventListener('DOMContentLoaded', () => {
+            window.authPage = new AuthPage();
+        });
+    </script>
+</body>
+</html>
